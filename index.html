@@ -293,43 +293,8 @@
             <div style="font-size: 17px; font-weight: 800; color: #1c2a22;">Project Types</div>
             <div style="font-size: 12.5px; font-weight: 700; color: #8b988f;">projects</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 20px;">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">
-                <div style="font-size: 14px; font-weight: 600; color: #35443b;">Farm-to-Market Roads</div>
-                <div data-stat="type-fmr" style="font-size: 15px; font-weight: 800; color: #1c2a22;">42</div>
-              </div>
-              <div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">
-                <div class="bar-fill" data-bar="type-fmr" style="height: 100%; width: 100%; background: #1f63d0; border-radius: 0 4px 4px 0;"></div>
-              </div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">
-                <div style="font-size: 14px; font-weight: 600; color: #35443b;">Small Scale Irrigation Projects</div>
-                <div data-stat="type-ssip" style="font-size: 15px; font-weight: 800; color: #1c2a22;">38</div>
-              </div>
-              <div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">
-                <div class="bar-fill" data-bar="type-ssip" style="height: 100%; width: 90%; background: #f2b505; border-radius: 0 4px 4px 0;"></div>
-              </div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">
-                <div style="font-size: 14px; font-weight: 600; color: #35443b;">Agricultural Infrastructure</div>
-                <div data-stat="type-infra" style="font-size: 15px; font-weight: 800; color: #1c2a22;">30</div>
-              </div>
-              <div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">
-                <div class="bar-fill" data-bar="type-infra" style="height: 100%; width: 71%; background: #d32f2f; border-radius: 0 4px 4px 0;"></div>
-              </div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">
-                <div style="font-size: 14px; font-weight: 600; color: #35443b;">Farm Machinery</div>
-                <div data-stat="type-machineries" style="font-size: 15px; font-weight: 800; color: #1c2a22;">18</div>
-              </div>
-              <div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">
-                <div class="bar-fill" data-bar="type-machineries" style="height: 100%; width: 43%; background: #1f7a3d; border-radius: 0 4px 4px 0;"></div>
-              </div>
-            </div>
+          <div data-project-types-list style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="font-size: 13.5px; color: #8b988f; font-weight: 600;">Loading project data...</div>
           </div>
         </div>
       </div>
@@ -523,16 +488,20 @@
 /* ---------- live tracker connection ----------
    Pulls real counts from the same Supabase project the tracker (tracker.html)
    uses, so the numbers above reflect projects, requirements and progress
-   documents actually encoded in the system. If the tables aren't readable
-   anonymously (no public SELECT policy) or the request fails, the page
-   quietly keeps the placeholder numbers already in the markup. */
+   documents actually encoded in the system. Project Types are rendered
+   from the same projects rows used by the tracker View Project pages. */
 (function () {
   var SUPABASE_URL = "https://rhlgfbstsqcndhdcglbv.supabase.co";
   var SUPABASE_ANON_KEY = "sb_publishable_Eciu6KnUkw48jV6YbjN6xw_--ELnqPw";
   if (typeof supabase === 'undefined') return;
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  var PROJECT_TYPES = ['fmr', 'ssip', 'infra', 'machineries'];
+  var PROJECT_TYPES = [
+    { key: 'infra', label: 'Agricultural Infrastructure Projects', color: '#d32f2f' },
+    { key: 'machineries', label: 'Farm Machinery', color: '#1f7a3d' },
+    { key: 'ssip', label: 'Small Scale Irrigation Projects', color: '#f2b505' },
+    { key: 'fmr', label: 'Farm-to-Market Roads', color: '#1f63d0' }
+  ];
 
   function setStat(key, value) {
     document.querySelectorAll('[data-stat="' + key + '"]').forEach(function (el) {
@@ -544,34 +513,98 @@
       el.textContent = value + '%';
     });
   }
-  function setBar(key, pct) {
-    document.querySelectorAll('[data-bar="' + key + '"]').forEach(function (el) {
-      el.style.width = pct + '%';
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
     });
   }
+  function renderProjectTypes(typeCounts) {
+    var wrap = document.querySelector('[data-project-types-list]');
+    if (!wrap) return;
 
-  async function countOf(table, filterFn) {
-    var q = sb.from(table).select('*', { count: 'exact', head: true });
-    if (filterFn) q = filterFn(q);
-    var res = await q;
-    if (res.error) throw res.error;
-    return res.count || 0;
+    var maxType = Math.max.apply(null, PROJECT_TYPES.map(function (type) {
+      return typeCounts[type.key] || 0;
+    }).concat([1]));
+
+    wrap.innerHTML = PROJECT_TYPES.map(function (type) {
+      var count = typeCounts[type.key] || 0;
+      var pct = Math.round((count / maxType) * 100);
+      return '<div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">' +
+          '<div style="font-size: 14px; font-weight: 600; color: #35443b;">' + escapeHtml(type.label) + '</div>' +
+          '<div data-stat="type-' + escapeHtml(type.key) + '" style="font-size: 15px; font-weight: 800; color: #1c2a22;">' + count + '</div>' +
+        '</div>' +
+        '<div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">' +
+          '<div class="bar-fill is-in" data-bar="type-' + escapeHtml(type.key) + '" style="height: 100%; width: ' + pct + '%; background: ' + type.color + '; border-radius: 0 4px 4px 0;"></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function renderProjectTypesMessage(message) {
+    var wrap = document.querySelector('[data-project-types-list]');
+    if (!wrap) return;
+    wrap.innerHTML = '<div style="font-size: 13.5px; color: #8b988f; font-weight: 600; line-height: 1.6;">' +
+      escapeHtml(message) +
+    '</div>';
+  }
+  async function loadProjectTypeCounts() {
+    var counts = {};
+    PROJECT_TYPES.forEach(function (type) { counts[type.key] = 0; });
+
+    var rpc = await sb.rpc('landing_project_type_counts');
+    if (!rpc.error && Array.isArray(rpc.data)) {
+      rpc.data.forEach(function (row) {
+        if (row.project_type in counts) counts[row.project_type] = Number(row.project_count) || 0;
+      });
+      return { counts: counts, fromPublicStats: true };
+    }
+
+    var projects = await sb.from('projects').select('id, project_type');
+    if (projects.error) throw projects.error;
+
+    (projects.data || []).forEach(function (project) {
+      if (project.project_type in counts) counts[project.project_type]++;
+    });
+    return { counts: counts, projects: projects.data || [], fromPublicStats: false };
   }
 
   async function loadLiveStats() {
-    var total = await countOf('projects');
-    if (!total) return; // nothing encoded yet (or reads are blocked) — keep placeholders
+    var auth = await sb.auth.getSession();
+    var hasSession = !!(auth && auth.data && auth.data.session);
+    var projectTypeStats = await loadProjectTypeCounts();
+    var projectRows = projectTypeStats.projects || [];
+    var totalFromTypes = PROJECT_TYPES.reduce(function (sum, type) {
+      return sum + (projectTypeStats.counts[type.key] || 0);
+    }, 0);
 
-    var typeCounts = {};
-    for (var i = 0; i < PROJECT_TYPES.length; i++) {
-      var t = PROJECT_TYPES[i];
-      typeCounts[t] = await countOf('projects', function (q) { return q.eq('project_type', t); });
+    renderProjectTypes(projectTypeStats.counts);
+
+    var total = projectRows.length || totalFromTypes;
+    if (!total) {
+      renderProjectTypesMessage(hasSession ? 'No projects are currently encoded.' : 'Project counts require tracker access. Log in to view live project data.');
+      return;
     }
 
+    setStat('total', total);
+
+    var typeCounts = {};
+    var projectIds = {};
+    PROJECT_TYPES.forEach(function (type) { typeCounts[type.key] = 0; });
+    projectRows.forEach(function (project) {
+      projectIds[project.id] = true;
+      if (project.project_type in typeCounts) typeCounts[project.project_type]++;
+    });
+
+    if (projectTypeStats.fromPublicStats) return;
+
     var progress = await sb.from('project_progress').select('project_id, percent_complete');
-    if (progress.error) throw progress.error;
+    if (progress.error) {
+      console.warn('RAEDNIRMIS landing page: could not load progress stats.', progress.error);
+      return;
+    }
     var maxPercentByProject = {};
     (progress.data || []).forEach(function (row) {
+      if (!projectIds[row.project_id]) return;
       var p = Number(row.percent_complete) || 0;
       if (!(row.project_id in maxPercentByProject) || p > maxPercentByProject[row.project_id]) {
         maxPercentByProject[row.project_id] = p;
@@ -591,13 +624,6 @@
     setShare('ongoing', total ? Math.round((ongoing / total) * 100) : 0);
     setShare('completed', total ? Math.round((completed / total) * 100) : 0);
 
-    var maxType = Math.max.apply(null, PROJECT_TYPES.map(function (t) { return typeCounts[t]; }).concat([1]));
-    var typeKeyMap = { fmr: 'type-fmr', ssip: 'type-ssip', infra: 'type-infra', machineries: 'type-machineries' };
-    PROJECT_TYPES.forEach(function (t) {
-      var key = typeKeyMap[t];
-      setStat(key, typeCounts[t]);
-      setBar(key, Math.round((typeCounts[t] / maxType) * 100));
-    });
   }
 
   loadLiveStats().catch(function (err) {
