@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAMEMISS v1.1 — RAED-NIR</title>
+<title>RAEDNIRMIS v1.1 — RAED-NIR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -15,17 +15,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --da-orange:#f2872e; --da-orange-2:#e0741c; --da-green:#1e5c34; --da-green-2:#164626;
-    --ink:#1c1a14; --paper:#f4f2ec; --line:#e2ddcf; --white:#ffffff;
-    --stone:#726c5f; --red:#b3402c; --red-bg:#f8dcd4; --green:#1e6b3c; --green-bg:#d9efe0;
-    --blue:#2f5f8a; --orange:#d6791e; --gold:#d69a2d; --shadow:0 2px 12px rgba(28,26,20,0.10);
+    --da-orange:#1f7a3d; --da-orange-2:#14532d; --da-green:#1f7a3d; --da-green-2:#123c26;
+    --ink:#1c2a22; --paper:#f7f7f2; --line:#e8e8de; --white:#ffffff;
+    --stone:#63736a; --red:#b3402c; --red-bg:#f8dcd4; --green:#1f7a3d; --green-bg:#dff1e5;
+    --blue:#1f63d0; --orange:#e9b563; --gold:#f2c14e; --shadow:0 8px 26px rgba(18,60,38,0.07);
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;}
   #app{min-height:100vh;display:flex;flex-direction:column;}
-  h1,h2,h3,h4{font-family:'Merriweather',serif;margin:0;}
+  h1,h2,h3,h4{font-family:inherit;margin:0;letter-spacing:0;}
   .mono{font-family:'IBM Plex Mono',monospace;}
-  button{font-family:'Inter',sans-serif;cursor:pointer;border:none;border-radius:6px;font-size:13.5px;font-weight:600;transition:transform .08s ease, opacity .15s ease;}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-size:13.5px;font-weight:700;transition:transform .08s ease, opacity .15s ease, background .15s ease;}
   button:active{transform:translateY(1px);}
   button:disabled{opacity:.45;cursor:not-allowed;}
   .btn-primary{background:var(--da-green);color:#fff;padding:10px 18px;}
@@ -38,24 +38,24 @@
   .btn-ghost{background:transparent;color:var(--stone);padding:7px 10px;font-weight:500;}
   .btn-ghost:hover{color:var(--ink);}
   .btn-sm{padding:6px 11px;font-size:12px;}
-  input,textarea,select{font-family:'Inter',sans-serif;font-size:14px;padding:9px 11px;border:1.5px solid var(--line);border-radius:6px;background:var(--white);color:var(--ink);width:100%;}
+  input,textarea,select{font-family:inherit;font-size:14px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink);width:100%;}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--da-green);outline-offset:1px;border-color:var(--da-green);}
   label{font-size:11.5px;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;}
   .field{margin-bottom:14px;}
 
-  .topbar{background:linear-gradient(90deg,var(--da-orange),var(--da-orange-2));color:#fff;box-shadow:var(--shadow);position:sticky;top:0;z-index:40;}
+  .topbar{background:rgba(255,255,255,0.94);color:var(--ink);box-shadow:none;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40;}
   .topbar-inner{max-width:1360px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}
   .brandblock{display:flex;align-items:center;gap:10px;cursor:pointer;}
   .brand-seal{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
   .brandtext{line-height:1.28;margin-left:2px;}
   .brandtext .l1{font-size:12px;font-weight:700;letter-spacing:.02em;}
-  .brandtext .l2{font-size:15px;font-weight:800;font-family:'Merriweather',serif;}
+  .brandtext .l2{font-size:15px;font-weight:800;}
   .brandtext .l3{font-size:10.5px;opacity:.92;letter-spacing:.02em;}
   .navwrap{display:flex;align-items:center;gap:2px;flex-wrap:wrap;}
   .navitem{position:relative;}
-  .navbtn{background:transparent;color:#fff;padding:9px 13px;border-radius:6px;font-size:13.5px;display:flex;align-items:center;gap:6px;}
-  .navbtn:hover, .navitem.open .navbtn{background:rgba(255,255,255,0.18);}
-  .navdrop{position:absolute;top:calc(100% + 6px);left:0;background:#fff;color:var(--ink);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:250px;padding:6px;display:none;z-index:50;}
+  .navbtn{background:transparent;color:var(--da-green);padding:9px 13px;border-radius:10px;font-size:13.5px;display:flex;align-items:center;gap:6px;}
+  .navbtn:hover, .navitem.open .navbtn{background:#eef7f1;}
+  .navdrop{position:absolute;top:calc(100% + 6px);left:0;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 16px 36px rgba(18,60,38,0.16);min-width:250px;padding:6px;display:none;z-index:50;}
   .navitem.open .navdrop{display:block;}
   .navdrop a, .navdrop .navdrop-item{display:block;padding:9px 12px;border-radius:6px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;text-decoration:none;}
   .navdrop .navdrop-item:hover{background:var(--paper);}
@@ -64,7 +64,7 @@
   .pending-badge{background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:6px;}
 
   .backdrop{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;background-size:cover;background-position:center;}
-  .glass-card{background:rgba(255,253,247,0.98);border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.28);padding:38px 40px;width:460px;max-width:94vw;}
+  .glass-card{background:rgba(255,255,255,0.98);border-radius:18px;box-shadow:0 18px 44px rgba(18,60,38,.18);padding:38px 40px;width:460px;max-width:94vw;}
   .glass-card h2{font-size:24px;color:var(--da-green-2);text-align:center;}
   .glass-card .ver{font-size:13px;color:var(--stone);font-weight:600;}
   .trial-tag{display:block;text-align:center;margin:8px auto 16px;background:var(--red-bg);color:var(--red);font-weight:700;font-size:11.5px;letter-spacing:.03em;padding:4px 10px;border-radius:20px;width:fit-content;}
@@ -76,13 +76,42 @@
   .error-text{font-size:12px;color:var(--red);margin-top:8px;font-weight:600;}
 
   .home-hero{flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:50px 20px;background-size:cover;background-position:center;}
-  .home-card{background:rgba(255,253,247,0.98);border-radius:16px;padding:44px 46px;width:640px;max-width:94vw;text-align:center;box-shadow:0 14px 44px rgba(0,0,0,.3);}
+  .home-card{background:rgba(255,255,255,0.98);border-radius:20px;padding:44px 46px;width:640px;max-width:94vw;text-align:center;box-shadow:0 18px 44px rgba(18,60,38,.18);}
   .home-card h1{font-size:32px;color:var(--da-green-2);}
   .home-card .v{font-size:16px;color:var(--stone);font-weight:600;}
   .home-card p{font-size:14px;color:#4a473e;line-height:1.7;margin-top:16px;}
 
-  .main{flex:1;max-width:1360px;margin:0 auto;padding:26px 24px 70px;width:100%;}
-  .card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:22px;box-shadow:var(--shadow);}
+  .app-shell{flex:1;display:grid;grid-template-columns:264px minmax(0,1fr);gap:24px;padding:24px;max-width:1480px;margin:0 auto;width:100%;}
+  .sidebar{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);min-height:calc(100vh - 48px);padding:18px;display:flex;flex-direction:column;gap:18px;position:sticky;top:24px;align-self:start;}
+  .side-brand{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line);cursor:pointer;}
+  .side-brand .gov-logo{height:34px;filter:none;}
+  .side-title{font-weight:800;color:var(--da-green);font-size:17px;line-height:1.1;letter-spacing:.4px;}
+  .side-sub{font-size:11px;color:var(--stone);font-weight:700;margin-top:3px;}
+  .side-nav{display:flex;flex-direction:column;gap:6px;}
+  .side-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--stone);font-weight:800;margin:6px 0 2px;}
+  .sidebtn{width:100%;background:transparent;color:var(--ink);padding:10px 12px;border-radius:10px;font-size:13.5px;display:flex;align-items:center;gap:9px;text-align:left;}
+  .sidebtn:hover,.sidebtn.active{background:#eef7f1;color:var(--da-green);}
+  .sidebtn .pending-badge{margin-left:auto;}
+  .side-actions{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;}
+  .side-user{font-size:12px;color:var(--stone);line-height:1.4;margin-bottom:8px;}
+  .dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;}
+  .dashboard-head h1{font-size:28px;color:var(--da-green-2);}
+  .dashboard-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px;}
+  .dashboard-kpi{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px;min-height:142px;display:flex;flex-direction:column;justify-content:space-between;}
+  .dashboard-kpi .kpi-icon,.recent-logo{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:transparent;box-shadow:none;overflow:hidden;flex-shrink:0;font-size:24px;line-height:1;}
+  .dashboard-kpi .kpi-num{font-weight:800;font-size:34px;color:var(--da-green-2);line-height:1;}
+  .dashboard-kpi .kpi-body{text-align:center;}
+  .dashboard-kpi .kpi-label{text-align:center;font-size:12.5px;color:#35443b;font-weight:800;line-height:1.35;margin-top:8px;}
+  .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr);gap:18px;}
+  .recent-list{display:flex;flex-direction:column;gap:10px;}
+  .recent-item{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;}
+  .recent-dot{width:42px;height:42px;}
+  .recent-name{font-weight:800;font-size:13.5px;color:var(--ink);}
+  .recent-meta{font-size:12px;color:var(--stone);margin-top:2px;}
+  .main{flex:1;padding:0;width:100%;}
+  @media(max-width:980px){.app-shell{grid-template-columns:1fr;padding:14px;}.sidebar{position:static;min-height:auto;}.dashboard-kpis{grid-template-columns:1fr 1fr;}.dashboard-grid{grid-template-columns:1fr;}}
+  @media(max-width:560px){.dashboard-kpis{grid-template-columns:1fr;}.recent-item{grid-template-columns:42px minmax(0,1fr);}.recent-item .btn-ghost{grid-column:2;justify-self:start;}}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:18px;}
   .toolbar-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   .section-title{font-size:21px;margin-bottom:4px;color:var(--da-green-2);}
@@ -95,10 +124,10 @@
   .ptable th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--stone);padding:9px 10px;border-bottom:2px solid var(--line);}
   .ptable td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top;}
   .ptable tr.prow{cursor:pointer;}
-  .ptable tr.prow:hover{background:#faf8f2;}
+  .ptable tr.prow:hover{background:#f5faf7;}
   .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:20px;white-space:nowrap;}
   .sp-incomplete{background:var(--red-bg);color:var(--red);} .sp-complete{background:var(--green-bg);color:var(--green);}
-  .req-expand{background:#faf8f2;}
+  .req-expand{background:#f5faf7;}
   .req-row{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:9px;background:#fff;}
   .req-row .rtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .req-row .rname{font-weight:700;font-size:13px;}
@@ -110,17 +139,17 @@
   .remarks-row{display:flex;gap:8px;margin-top:8px;}
   .remarks-row textarea{flex:1;font-size:12.5px;padding:7px 9px;}
   .empty{text-align:center;padding:44px 20px;color:var(--stone);}
-  .empty h3{color:var(--stone);margin-bottom:6px;font-family:'Merriweather',serif;}
+  .empty h3{color:var(--stone);margin-bottom:6px;}
   .search-wrap{max-width:320px;flex:1;}
   .filter-wrap{max-width:260px;}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--stone);margin-bottom:16px;background:#f4f2ec;padding:9px 14px;border-radius:8px;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--stone);margin-bottom:16px;background:#f5faf7;padding:9px 14px;border-radius:8px;}
   .legend span{display:flex;align-items:center;gap:6px;}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
   .dot-incomplete{background:var(--red);} .dot-complete{background:var(--green);}
 
   .stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;}
   .stat-card{border:1px solid var(--line);border-radius:10px;padding:20px;text-align:center;}
-  .stat-card .num{font-family:'Merriweather',serif;font-weight:900;font-size:38px;color:var(--da-green-2);}
+  .stat-card .num{font-weight:800;font-size:38px;color:var(--da-green-2);}
   .stat-card.complete .num{color:var(--green);}
   .stat-card .lbl{font-size:12px;color:var(--stone);text-transform:uppercase;letter-spacing:.03em;margin-top:4px;}
   .chart-wrap{border:1px solid var(--line);border-radius:10px;padding:18px;height:360px;}
@@ -135,24 +164,24 @@
   /* ===== MAP (added) ===== */
   #phMap{height:600px;width:100%;}
   #pickMap{height:260px;width:100%;border-radius:8px;border:1.5px solid var(--line);}
-  .leaflet-popup-content b{font-family:'Merriweather',serif;color:var(--da-green-2);}
+  .leaflet-popup-content b{font-family:inherit;color:var(--da-green-2);}
   .map-legend-dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);}
   .map-legend{background:rgba(255,255,255,.95);padding:10px 12px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:12px;line-height:1.9;}
-  .map-legend .lt{font-family:'Merriweather',serif;font-weight:700;font-size:11.5px;color:var(--da-green-2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.03em;}
+  .map-legend .lt{font-weight:800;font-size:11.5px;color:var(--da-green-2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.03em;}
   .map-legend .li{display:flex;align-items:center;gap:8px;}
   .map-legend .sep{border-top:1px solid var(--line);margin:7px 0 5px;}
   .map-legend .ring-demo{width:12px;height:12px;border-radius:50%;background:#bbb;display:inline-block;}
   .mapfilters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
   .mapfilters .mf{min-width:150px;}
   .mapfilters label{margin-bottom:4px;}
-  .typetoggles{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#f4f2ec;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:12.5px;}
+  .typetoggles{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#f5faf7;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:12.5px;}
   .typetoggles label{display:flex;align-items:center;gap:7px;text-transform:none;font-size:12.5px;font-weight:600;color:var(--ink);margin:0;letter-spacing:0;cursor:pointer;}
   .typetoggles input{width:auto;}
   .popup-meta{font-size:12px;color:var(--stone);margin-top:3px;line-height:1.55;}
   .popup-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px;}
   .popup-btn{margin-top:8px;background:var(--da-green);color:#fff;padding:6px 11px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;}
-  .popup-link{display:inline-block;margin-top:8px;background:#f0ede4;color:var(--da-green-2)!important;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);}
-  .popup-link:hover{background:#e5e0d2;text-decoration:none;}
+  .popup-link{display:inline-block;margin-top:8px;background:#eef7f1;color:var(--da-green-2)!important;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);}
+  .popup-link:hover{background:#dff1e5;text-decoration:none;}
   .coord-help{font-size:11.5px;color:var(--stone);margin-top:6px;line-height:1.5;}
   .coord-warn{font-size:11.5px;color:var(--red);font-weight:600;margin-top:6px;}
 
@@ -161,7 +190,7 @@
   .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
   @media(max-width:820px){.kpi-row{grid-template-columns:1fr 1fr;}}
   .kpi{border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;background:#fff;}
-  .kpi .n{font-family:'Merriweather',serif;font-weight:900;font-size:26px;color:var(--da-green-2);}
+  .kpi .n{font-weight:800;font-size:26px;color:var(--da-green-2);}
   .kpi .l{font-size:11px;color:var(--stone);text-transform:uppercase;letter-spacing:.03em;margin-top:3px;}
   .kpi.ahead .n{color:var(--green);} .kpi.behind .n{color:var(--red);}
   .scurve-wrap{border:1px solid var(--line);border-radius:10px;padding:16px;height:380px;background:#fff;margin-bottom:18px;}
@@ -169,16 +198,16 @@
   .milestone-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
   .milestone-row input{flex:1;}
   .entry-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;display:flex;gap:14px;flex-wrap:wrap;}
-  .entry-thumb{width:120px;height:96px;border-radius:8px;object-fit:cover;border:1px solid var(--line);background:#f0ede4;cursor:pointer;flex-shrink:0;}
+  .entry-thumb{width:120px;height:96px;border-radius:8px;object-fit:cover;border:1px solid var(--line);background:#eef7f1;cursor:pointer;flex-shrink:0;}
   .entry-body{flex:1;min-width:220px;}
-  .entry-pct{font-family:'Merriweather',serif;font-weight:900;font-size:22px;color:var(--da-green-2);}
+  .entry-pct{font-weight:800;font-size:22px;color:var(--da-green-2);}
   .entry-meta{font-size:12px;color:var(--stone);line-height:1.6;margin-top:4px;}
   .verify-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:3px 9px;border-radius:20px;margin-right:6px;}
   .vb-ok{background:var(--green-bg);color:var(--green);}
   .vb-warn{background:#fbeecd;color:#8a6415;}
   .vb-bad{background:var(--red-bg);color:var(--red);}
   .vb-none{background:#ece9df;color:var(--stone);}
-  .exif-readout{background:#f4f2ec;border-radius:8px;padding:12px 14px;font-size:12.5px;margin-top:10px;line-height:1.7;}
+  .exif-readout{background:#f5faf7;border-radius:8px;padding:12px 14px;font-size:12.5px;margin-top:10px;line-height:1.7;}
   .exif-readout b{color:var(--ink);}
 </style>
 </head>
@@ -379,6 +408,17 @@ function applyBrandImages(){
 }
 
 function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function raedLogo(label){
+  return `<svg viewBox="0 0 46 46" role="img" aria-label="${esc(label || 'RAEDNIRMIS logo')}">
+    <circle cx="23" cy="23" r="21" fill="#1f7a3d"></circle>
+    <circle cx="23" cy="15" r="4" fill="#f2c14e"></circle>
+    <path d="M23 18 C 15.5 22, 13.5 30, 15.5 34.5 L 30.5 34.5 C 32.5 30, 30.5 22, 23 18 Z" fill="#ffffff"></path>
+    <path d="M23 21 L23 34.5" stroke="#1f7a3d" stroke-width="1.4"></path>
+  </svg>`;
+}
+function projectTypeIcon(type){
+  return ({ infra:'🏗️', machineries:'🚜', ssip:'💧', fmr:'🛣️' })[type] || '🌾';
+}
 function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
 function fmtSize(bytes){ if(!bytes) return ''; if(bytes<1024) return bytes+' B'; if(bytes<1024*1024) return (bytes/1024).toFixed(0)+' KB'; return (bytes/(1024*1024)).toFixed(1)+' MB'; }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(window.__toastT); window.__toastT=setTimeout(()=>t.classList.remove('show'),2600); }
@@ -402,6 +442,21 @@ let STATE = {
   mapFilters:{ types:{machineries:true, fmr:true, infra:true, ssip:true}, banner:'', year:'', status:'' },
   progressProjectId:null, pendingExif:null, planDraft:null,
 };
+
+async function logoutToLanding(){
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+async function resolveLoginEmail(identifier){
+  if(identifier.includes('@')) return identifier;
+  const rpcLookup = await sb.rpc('profile_email_for_username', { username_input: identifier });
+  if(!rpcLookup.error && rpcLookup.data) return rpcLookup.data;
+  const { data, error } = await sb.from('profiles').select('email').eq('username', identifier).maybeSingle();
+  if(error) throw new Error('Username login requires the profiles username/email columns.');
+  if(!data || !data.email) throw new Error('No account found for that username.');
+  return data.email;
+}
 
 async function boot(){
   applyBrandImages();
@@ -460,23 +515,23 @@ async function loadEverything(){
     const { data: pending } = await sb.from('profiles').select('*').eq('approved', false).order('created_at');
     STATE.adminPending = pending || [];
   }
-  STATE.view='home';
+  STATE.view='dashboard';
   render();
 }
 
 /* ============ RENDER ROOT ============ */
 function render(){
   const app = document.getElementById('app');
-  if(STATE.view==='loading'){ app.innerHTML = `<div class="backdrop"><div class="glass-card"><h3 style="color:var(--stone);text-align:center;">Loading MAMEMISS…</h3></div></div>`; return; }
+  if(STATE.view==='loading'){ app.innerHTML = `<div class="backdrop"><div class="glass-card"><h3 style="color:var(--stone);text-align:center;">Loading RAEDNIRMIS…</h3></div></div>`; return; }
   if(STATE.view==='login'){ app.innerHTML = renderAuth(); attachAuthHandlers(); return; }
   if(STATE.view==='pending'){ app.innerHTML = renderPending(); attachPendingHandlers(); return; }
 
   let body='';
-  if(STATE.view==='home'){ app.innerHTML = renderTopbar() + renderHomeHero(); attachGlobalHandlers(); return; }
-  if(STATE.view==='typepage') body = renderTypePage();
+  if(STATE.view==='dashboard') body = renderDashboard();
+  else if(STATE.view==='typepage') body = renderTypePage();
   else if(STATE.view==='map') body = renderMapPage();
   else if(STATE.view==='progress') body = renderProgressPage();
-  app.innerHTML = renderTopbar() + `<div class="main">${body}</div>`;
+  app.innerHTML = renderShell(body);
   attachGlobalHandlers();
   if(STATE.view==='map') setTimeout(initLeafletMap, 30);
   if(STATE.view==='progress') setTimeout(drawSCurve, 40);
@@ -490,16 +545,18 @@ function renderAuth(){
   return `
   <div class="backdrop">
     <div class="glass-card">
-      <img class="seal-lg" src="${SEAL_IMAGE}" alt="RAED-NIR Seal">
-      <h2>Welcome to MAMEMISS <span class="ver">v1.1</span></h2>
+      <img class="seal-lg" src="${DA_LOGO}" alt="RAED-NIR Seal">
+      <h2>Welcome to RAEDNIRMIS <span class="ver">v1.1</span></h2>
       <div class="trial-tag">RAED-NIR Requirement Tracker</div>
       <div class="desc">Machinery, Agricultural &amp; Fisheries Infrastructure Monitoring and Evaluation Information Support System — the central log-in point for the Regional Agricultural Engineering Division (RAED–NIR) project registry and requirements tracker.</div>
       <div class="tabs">
         <div class="tab ${isLogin?'active':''}" data-authtab="login">Log in</div>
         <div class="tab ${!isLogin?'active':''}" data-authtab="signup">Create account</div>
       </div>
-      ${!isLogin?`<div class="field"><label>Full name</label><input id="authName" placeholder="Juan Dela Cruz"></div>`:''}
-      <div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@da.gov.ph"></div>
+      ${!isLogin?`
+      <div class="field"><label>Full name</label><input id="authName" placeholder="Juan Dela Cruz"></div>
+      <div class="field"><label>Username</label><input id="authUsername" autocomplete="username" placeholder="juan.delacruz"></div>`:''}
+      <div class="field"><label>${isLogin?'Username or Email':'Email'}</label><input id="authEmail" ${isLogin?'':'type="email"'} autocomplete="${isLogin?'username':'email'}" placeholder="${isLogin?'juan.delacruz or you@da.gov.ph':'you@da.gov.ph'}"></div>
       <div class="field"><label>Password</label><input id="authPassword" type="password" placeholder="At least 6 characters"></div>
       ${STATE.authError?`<div class="error-text">${esc(STATE.authError)}</div>`:''}
       <button class="btn-primary" id="authSubmit" style="width:100%;margin-top:6px;">${isLogin?'Log in':'Create account'}</button>
@@ -518,15 +575,32 @@ function attachAuthHandlers(){
     if(!email || !password){ STATE.authError='Enter email and password.'; render(); return; }
     if(STATE.authMode==='signup'){
       const name = document.getElementById('authName').value.trim();
+      const username = document.getElementById('authUsername').value.trim();
       if(!name){ STATE.authError='Enter your full name.'; render(); return; }
-      const { data, error } = await sb.auth.signUp({ email, password });
+      if(!username){ STATE.authError='Enter your username.'; render(); return; }
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options:{ data:{ full_name:name, username } }
+      });
       if(error){ STATE.authError=error.message; render(); return; }
-      if(data.user){ await sb.from('profiles').insert({ id:data.user.id, name, role:'member', approved:false }); }
+      if(data.user){
+        const profile = { id:data.user.id, name, username, email, role:'member', approved:false };
+        const { error: profileError } = await sb.from('profiles').insert(profile);
+        if(profileError){ await sb.from('profiles').insert({ id:data.user.id, name, role:'member', approved:false }); }
+      }
       toast('Account created — waiting for admin approval');
       STATE.authMode='login'; STATE.authError=''; render();
     } else {
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if(error){ STATE.authError=error.message; render(); return; }
+      try {
+        const loginEmail = await resolveLoginEmail(email);
+        const { error } = await sb.auth.signInWithPassword({ email:loginEmail, password });
+        if(error){ STATE.authError=error.message; render(); return; }
+      } catch(err) {
+        STATE.authError = err.message || 'Unable to log in.';
+        render();
+        return;
+      }
       STATE.view='loading'; render();
       await loadEverything();
     }
@@ -540,7 +614,7 @@ function renderPending(){
   </div></div>`;
 }
 function attachPendingHandlers(){
-  document.getElementById('pendingLogout').onclick = async ()=>{ await sb.auth.signOut(); };
+  document.getElementById('pendingLogout').onclick = logoutToLanding;
 }
 
 /* ============ TOPBAR (post-login) ============ */
@@ -563,7 +637,6 @@ function renderTopbar(){
         </div>
       </div>
       <div class="navwrap">
-        <div class="navitem"><button class="navbtn" id="navHome">🏠 Home</button></div>
         <div class="navitem ${dashOpen}">
           <button class="navbtn" id="navDashToggle">📊 Dashboard ▾</button>
           <div class="navdrop">
@@ -597,13 +670,12 @@ function renderTopbar(){
   </div>`;
 }
 function attachGlobalHandlers(){
-  const home = document.getElementById('homeLink'); if(home) home.onclick=()=>{STATE.view='home';STATE.openNav=null;render();};
-  const navHome = document.getElementById('navHome'); if(navHome) navHome.onclick=()=>{STATE.view='home';STATE.openNav=null;render();};
+  const home = document.getElementById('homeLink'); if(home) home.onclick=()=>{STATE.view='dashboard';STATE.openNav=null;render();};
   const navMap = document.getElementById('navMap'); if(navMap) navMap.onclick=()=>{STATE.view='map';STATE.openNav=null;render();};
   const dashT = document.getElementById('navDashToggle'); if(dashT) dashT.onclick=(e)=>{e.stopPropagation(); STATE.openNav = STATE.openNav==='dashboard'?null:'dashboard'; render();};
   const acctT = document.getElementById('navAcctToggle'); if(acctT) acctT.onclick=(e)=>{e.stopPropagation(); STATE.openNav = STATE.openNav==='account'?null:'account'; render();};
   const adminT = document.getElementById('navAdminToggle'); if(adminT) adminT.onclick=(e)=>{e.stopPropagation(); STATE.openNav = STATE.openNav==='admin'?null:'admin'; render();};
-  const lo = document.getElementById('logoutBtn'); if(lo) lo.onclick = async ()=>{ await sb.auth.signOut(); };
+  const lo = document.getElementById('logoutBtn'); if(lo) lo.onclick = logoutToLanding;
   document.querySelectorAll('[data-approveuser]').forEach(el=>{
     el.onclick = async ()=>{
       await sb.from('profiles').update({ approved:true }).eq('id', el.dataset.approveuser);
@@ -634,12 +706,157 @@ function renderHomeHero(){
   return `
   <div class="home-hero">
     <div class="home-card">
-      <img class="seal-lg" src="${SEAL_IMAGE}" alt="RAED-NIR Seal">
-      <h1>Welcome to MAMEMISS <span class="v">v1.1</span></h1>
+      <img class="seal-lg" src="${DA_LOGO}" alt="RAED-NIR Seal">
+      <h1>Welcome to RAEDNIRMIS <span class="v">v1.1</span></h1>
       <div class="trial-tag" style="margin:10px auto 0;">RAED-NIR Requirement Tracker</div>
-      <p>MAMEMISS is the Regional Agricultural Engineering Division (RAED–NIR) monitoring and evaluation system for Agri-Fisheries Machinery and Infrastructure projects — Farm-to-Market Roads, Small Scale Irrigation Projects, Agri-Fisheries Machinery, and Infrastructure Projects. Use the Dashboard menu above to register a new project and track submitted requirements, or open Agri-Infra / Machineries / SSIP / FMR directly to browse projects and view completeness analytics.</p>
+      <p>RAEDNIRMIS is the Regional Agricultural Engineering Division (RAED–NIR) monitoring and evaluation system for Agri-Fisheries Machinery and Infrastructure projects — Farm-to-Market Roads, Small Scale Irrigation Projects, Agri-Fisheries Machinery, and Infrastructure Projects. Use the Dashboard menu above to register a new project and track submitted requirements, or open Agri-Infra / Machineries / SSIP / FMR directly to browse projects and view completeness analytics.</p>
     </div>
   </div>`;
+}
+
+function renderShell(body){
+  return `<div class="app-shell">${renderSidebar()}<main class="main">${body}</main></div>`;
+}
+
+function renderSidebar(){
+  const u = STATE.profile;
+  const isAdmin = u.role==='admin';
+  const activeType = STATE.view==='typepage' ? STATE.typePageType : '';
+  return `
+  <aside class="sidebar">
+    <div class="side-brand" id="dashboardLink">
+      <img class="gov-logo" src="${DA_LOGO}" alt="Department of Agriculture">
+      <div>
+        <div class="side-title">RAEDNIRMIS</div>
+        <div class="side-sub">RAED-NIR Requirement Tracker</div>
+      </div>
+    </div>
+    <nav class="side-nav">
+      <button class="sidebtn ${STATE.view==='dashboard'?'active':''}" id="navDashboard">Dashboard</button>
+      <div class="side-label">Register</div>
+      ${Object.entries(PROJECT_TYPES).map(([k,t])=>`<button class="sidebtn" data-goto="${k}:register:dashboard">+ ${esc(t.navLabel)}</button>`).join('')}
+      <div class="side-label">Projects</div>
+      <button class="sidebtn ${activeType==='infra' && STATE.pageMode==='standalone'?'active':''}" data-goto="infra:view:standalone">Agri-Infra</button>
+      <button class="sidebtn ${activeType==='machineries' && STATE.pageMode==='standalone'?'active':''}" data-goto="machineries:view:standalone">Machineries</button>
+      <button class="sidebtn ${activeType==='ssip' && STATE.pageMode==='standalone'?'active':''}" data-goto="ssip:view:standalone">SSIP</button>
+      <button class="sidebtn ${activeType==='fmr' && STATE.pageMode==='standalone'?'active':''}" data-goto="fmr:view:standalone">FMR</button>
+      <button class="sidebtn ${STATE.view==='map'?'active':''}" id="navMap">Project Map</button>
+      ${isAdmin?`
+      <div class="side-label">Admin</div>
+      <button class="sidebtn" id="navAdminToggle">Pending Accounts${STATE.adminPending.length?`<span class="pending-badge">${STATE.adminPending.length}</span>`:''}</button>
+      <div id="adminPanel" style="${STATE.openNav==='admin'?'':'display:none;'}">
+        ${STATE.adminPending.length ? STATE.adminPending.map(p=>`
+          <div class="admin-row"><span>${esc(p.name)}</span><button class="btn-primary btn-sm" data-approveuser="${p.id}">Approve</button></div>
+        `).join('') : `<div style="padding:9px 12px;font-size:12.5px;color:var(--stone);">No pending accounts.</div>`}
+      </div>`:''}
+    </nav>
+    <div class="side-actions">
+      <div class="side-user"><b>${esc(u.name)}</b><br>${esc(u.role || 'member')}</div>
+      <button class="btn-secondary" id="logoutBtn" style="width:100%;">Log out</button>
+    </div>
+  </aside>`;
+}
+
+function projectTypeCounts(){
+  const counts = {};
+  Object.keys(PROJECT_TYPES).forEach(k=>counts[k]=0);
+  Object.values(STATE.projects).forEach(p=>{ if(p.projectType in counts) counts[p.projectType]++; });
+  return counts;
+}
+
+function renderDashboard(){
+  const counts = projectTypeCounts();
+  const cards = [
+    ['infra', 'Agricultural Infrastructure Projects'],
+    ['machineries', 'Farm Machinery'],
+    ['ssip', 'Small Scale Irrigation Projects'],
+    ['fmr', 'Farm-to-Market Roads'],
+  ];
+  const recent = Object.values(STATE.projects).slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,6);
+  return `
+    <div class="dashboard-head">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="section-sub">Project totals by RAED-NIR project type</div>
+      </div>
+      <button class="btn-primary" data-goto="infra:register:dashboard">Add New</button>
+    </div>
+    <section class="dashboard-kpis">
+      ${cards.map(([key,label])=>`
+        <div class="dashboard-kpi">
+          <div>
+            <div class="kpi-icon" aria-label="${esc(label)}">${projectTypeIcon(key)}</div>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-num">${counts[key] || 0}</div>
+            <div class="kpi-label">${esc(label)}</div>
+          </div>
+        </div>
+      `).join('')}
+    </section>
+    <section class="dashboard-grid">
+      <div class="card">
+        <div class="toolbar">
+          <div><div class="section-title">Recent Projects</div><div class="section-sub">Latest encoded project records</div></div>
+        </div>
+        <div class="recent-list">
+          ${recent.length ? recent.map(p=>`
+            <div class="recent-item">
+              <div class="recent-dot recent-logo" aria-label="${esc(PROJECT_TYPES[p.projectType]?.name || 'Project')}">${projectTypeIcon(p.projectType)}</div>
+              <div>
+                <div class="recent-name">${esc(p.title)}</div>
+                <div class="recent-meta">${esc(PROJECT_TYPES[p.projectType]?.name || '')} &middot; ${esc(p.proponent)} &middot; FY ${esc(p.fundingYear || '-')}</div>
+              </div>
+              <button class="btn-ghost btn-sm" data-goto="${p.projectType}:view:standalone">View</button>
+            </div>
+          `).join('') : `<div class="empty"><h3>No projects yet</h3><div>Use Add New or the Register links to encode the first project.</div></div>`}
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Project Access</div>
+        <div class="section-sub" style="margin-bottom:14px;">Open project lists by type.</div>
+        <div class="side-nav">
+          ${cards.map(([key,label])=>`<button class="sidebtn" data-goto="${key}:view:standalone">${esc(label)}</button>`).join('')}
+          <button class="sidebtn" id="dashboardMapBtn">Project Map</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function attachGlobalHandlers(){
+  const dashLink = document.getElementById('dashboardLink');
+  if(dashLink) dashLink.onclick=()=>{STATE.view='dashboard';STATE.openNav=null;render();};
+  const navDashboard = document.getElementById('navDashboard');
+  if(navDashboard) navDashboard.onclick=()=>{STATE.view='dashboard';STATE.openNav=null;render();};
+  const navMap = document.getElementById('navMap');
+  if(navMap) navMap.onclick=()=>{STATE.view='map';STATE.openNav=null;render();};
+  const dashboardMapBtn = document.getElementById('dashboardMapBtn');
+  if(dashboardMapBtn) dashboardMapBtn.onclick=()=>{STATE.view='map';STATE.openNav=null;render();};
+  const adminT = document.getElementById('navAdminToggle');
+  if(adminT) adminT.onclick=(e)=>{e.stopPropagation(); STATE.openNav = STATE.openNav==='admin'?null:'admin'; render();};
+  const lo = document.getElementById('logoutBtn');
+  if(lo) lo.onclick = logoutToLanding;
+  document.querySelectorAll('[data-approveuser]').forEach(el=>{
+    el.onclick = async ()=>{
+      await sb.from('profiles').update({ approved:true }).eq('id', el.dataset.approveuser);
+      toast('User approved');
+      const { data: pending } = await sb.from('profiles').select('*').eq('approved', false).order('created_at');
+      STATE.adminPending = pending || []; render();
+    };
+  });
+  document.querySelectorAll('[data-goto]').forEach(el=>{
+    el.onclick = ()=>{
+      const [type,tab,mode] = el.dataset.goto.split(':');
+      STATE.typePageType = type; STATE.typePageTab = tab; STATE.pageMode = mode;
+      STATE.viewFilterType = type;
+      STATE.view='typepage'; STATE.openNav=null; STATE.expandedProjectId=null; STATE.searchQuery='';
+      render();
+      if(tab==='status') setTimeout(()=>drawStatusChart(type), 30);
+      if(tab==='analytics') setTimeout(()=>drawReqAnalyticsChart(type), 30);
+      if(tab==='register') setTimeout(initPickMap, 30);
+    };
+  });
 }
 
 /* ============ TYPE PAGE ============ */

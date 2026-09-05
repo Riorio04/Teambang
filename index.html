@@ -37,7 +37,60 @@
   @media (max-width: 1000px) { .hero-tractor { width: 98%; opacity: 0.55; } }
   @media (max-width: 620px)  { .hero-tractor { width: 120%; opacity: 0.40; } }
   .hero-copy { flex: 1 1 480px; min-width: 0; }
-  .hero-tiles { flex: 0 1 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .hero-tiles { flex: 0 1 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; }
+  .hero-tiles.login-open { display: block; }
+  .hero-tiles.login-open .hero-tile { display: none; }
+  .hero-login-panel {
+    display: none;
+    width: min(420px, 100%);
+    background: rgba(255,255,255,0.97);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 20px;
+    padding: 28px 30px;
+    box-shadow: 0 20px 46px rgba(9,32,19,0.28);
+  }
+  .hero-tiles.login-open .hero-login-panel { display: block; }
+  .login-mark {
+    width: 58px; height: 58px; object-fit: contain; display: block;
+    margin-bottom: 16px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.16));
+  }
+  .login-actions {
+    display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+    margin-top: 13px; font-size: 12.5px; font-weight: 800;
+  }
+  .login-actions button {
+    border: 0; background: transparent; color: #1f7a3d; padding: 0;
+    font-size: inherit; font-weight: inherit;
+  }
+  .login-actions button:hover { color: #14532d; text-decoration: underline; }
+  .login-field { margin-bottom: 14px; }
+  .login-field[hidden] { display: none; }
+  .login-field label {
+    display: block; color: #63736a; font-size: 11.5px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px;
+  }
+  .login-field input {
+    width: 100%; border: 1px solid #dcdfd5; border-radius: 12px;
+    background: #ffffff; color: #1c2a22; padding: 12px 13px;
+    font: inherit; font-size: 14px;
+  }
+  .login-field input:focus { outline: 3px solid rgba(31,122,61,0.16); border-color: #1f7a3d; }
+  .login-error {
+    display: none; color: #b3402c; font-size: 12.5px; font-weight: 700;
+    line-height: 1.45; margin: 2px 0 12px;
+  }
+  .login-error.show { display: block; }
+  .login-success {
+    display: none; color: #1f7a3d; font-size: 12.5px; font-weight: 700;
+    line-height: 1.45; margin: 2px 0 12px;
+  }
+  .login-success.show { display: block; }
+  .login-submit {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
+    background: #1f7a3d; color: #ffffff; border: none; border-radius: 999px;
+    padding: 13px 18px; font-weight: 800; font-size: 14px;
+  }
+  .login-submit:disabled { opacity: .65; cursor: wait; }
   .glance-head {
     display: flex; gap: 44px; align-items: center;
     justify-content: space-between; flex-wrap: wrap; margin-bottom: 34px;
@@ -156,7 +209,7 @@
       </nav>
 
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="tracker.html" style="display: flex; align-items: center; gap: 8px; background: #1f7a3d; color: #ffffff; border: none; padding: 11px 20px; border-radius: 999px; font-weight: 700; font-size: 13.5px; white-space: nowrap;">
+        <a href="#" data-login-trigger style="display: flex; align-items: center; gap: 8px; background: #1f7a3d; color: #ffffff; border: none; padding: 11px 20px; border-radius: 999px; font-weight: 700; font-size: 13.5px; white-space: nowrap;">
           Login to System
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
@@ -195,7 +248,7 @@
           <p style="font-size: 16px; color: #d9e6dd; line-height: 1.75; margin: 0 0 34px; max-width: 500px;">A centralized platform for encoding, tracking, and managing agricultural engineering projects — from proposal to completion.</p>
 
           <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-            <a href="tracker.html" style="display: flex; align-items: center; gap: 9px; background: #1f7a3d; color: #ffffff; border: none; padding: 15px 26px; border-radius: 999px; font-weight: 700; font-size: 15px;">
+            <a href="#" data-login-trigger style="display: flex; align-items: center; gap: 9px; background: #1f7a3d; color: #ffffff; border: none; padding: 15px 26px; border-radius: 999px; font-weight: 700; font-size: 15px;">
               Login to System
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
@@ -234,6 +287,37 @@
             <div class="mono" data-stat="completed" style="font-size: 34px; font-weight: 800; color: #ffffff; line-height: 1;">47</div>
             <div style="font-size: 12.5px; color: #cadbcf; font-weight: 600; margin-top: 6px;">Completed Projects</div>
           </div>
+          <form class="hero-login-panel" id="heroLoginPanel" novalidate data-mode="login">
+            <img class="login-mark gov-logo" src="./assets/landing/gov-logo.svg" alt="Department of Agriculture">
+            <div id="landingPanelTitle" style="font-size: 24px; font-weight: 800; color: #1c2a22; line-height: 1.15; margin-bottom: 6px;">Login to RAEDNIRMIS</div>
+            <div id="landingPanelDesc" style="font-size: 13.5px; color: #63736a; line-height: 1.55; margin-bottom: 20px;">Access the project registry, dashboard, maps, and requirement tracker.</div>
+            <div class="login-field" id="landingNameField" hidden>
+              <label for="landingSignupName">Full name</label>
+              <input id="landingSignupName" autocomplete="name" placeholder="Juan Dela Cruz">
+            </div>
+            <div class="login-field" id="landingUsernameField" hidden>
+              <label for="landingSignupUsername">Username</label>
+              <input id="landingSignupUsername" autocomplete="username" placeholder="juan.delacruz">
+            </div>
+            <div class="login-field">
+              <label for="landingLoginEmail" id="landingIdentifierLabel">Username or Email</label>
+              <input id="landingLoginEmail" autocomplete="username" placeholder="juan.delacruz or you@da.gov.ph">
+            </div>
+            <div class="login-field" id="landingPasswordField">
+              <label for="landingLoginPassword">Password</label>
+              <input id="landingLoginPassword" type="password" autocomplete="current-password" placeholder="Enter your password">
+            </div>
+            <div class="login-error" id="landingLoginError"></div>
+            <div class="login-success" id="landingLoginSuccess"></div>
+            <button class="login-submit" id="landingLoginSubmit" type="submit">
+              Log in
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+            <div class="login-actions">
+              <button type="button" id="landingSignupToggle">Create account</button>
+              <button type="button" id="landingForgotToggle">Forgot password?</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -344,7 +428,7 @@
       <p data-rev style="--d:300ms; font-size: 16px; color: #55655c; line-height: 1.85; margin: 0;">With RAEDNIRMIS, every project is encoded at the proposal stage, allowing its requirements and supporting documents to be tracked and validated <strong style="color: #1c2a22; font-weight: 700;">before funding or implementation</strong>. Once a project enters implementation, its progress and status are continuously monitored, updated, and documented until completion.</p>
 
       <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px;">
-        <a href="tracker.html" style="display: flex; align-items: center; gap: 9px; background: #1f7a3d; color: #ffffff; border: none; padding: 14px 26px; border-radius: 999px; font-weight: 700; font-size: 15px;">
+        <a href="#" data-login-trigger style="display: flex; align-items: center; gap: 9px; background: #1f7a3d; color: #ffffff; border: none; padding: 14px 26px; border-radius: 999px; font-weight: 700; font-size: 15px;">
           Login to System
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
@@ -368,7 +452,7 @@
             <a href="#overview" style="color: #93aa9c; font-size: 13.5px;">Overview</a>
             <a href="#process" style="color: #93aa9c; font-size: 13.5px;">How it works</a>
             <a href="#about" style="color: #93aa9c; font-size: 13.5px;">About</a>
-            <a href="tracker.html" style="color: #93aa9c; font-size: 13.5px;">Login to System</a>
+            <a href="#" data-login-trigger style="color: #93aa9c; font-size: 13.5px;">Login to System</a>
           </div>
         </div>
       </div>
@@ -410,7 +494,260 @@
       if (e.isIntersecting) setActive(e.target.id);
     });
   }, { rootMargin: '-45% 0px -50% 0px' });
-  sections.forEach(function (s) { if (s) sectionObserver.observe(s); });
+sections.forEach(function (s) { if (s) sectionObserver.observe(s); });
+})();
+
+/* ---------- hidden hero login ---------- */
+(function () {
+  var SUPABASE_URL = "https://rhlgfbstsqcndhdcglbv.supabase.co";
+  var SUPABASE_ANON_KEY = "sb_publishable_Eciu6KnUkw48jV6YbjN6xw_--ELnqPw";
+  var heroTiles = document.querySelector('.hero-tiles');
+  var panel = document.getElementById('heroLoginPanel');
+  var errorEl = document.getElementById('landingLoginError');
+  var submitBtn = document.getElementById('landingLoginSubmit');
+  var successEl = document.getElementById('landingLoginSuccess');
+  var titleEl = document.getElementById('landingPanelTitle');
+  var descEl = document.getElementById('landingPanelDesc');
+  var nameField = document.getElementById('landingNameField');
+  var usernameField = document.getElementById('landingUsernameField');
+  var identifierLabel = document.getElementById('landingIdentifierLabel');
+  var identifierInput = document.getElementById('landingLoginEmail');
+  var passwordField = document.getElementById('landingPasswordField');
+  var passwordInput = document.getElementById('landingLoginPassword');
+  var signupToggle = document.getElementById('landingSignupToggle');
+  var forgotToggle = document.getElementById('landingForgotToggle');
+  if (!heroTiles || !panel) return;
+
+  function updatePanel(options) {
+    titleEl.textContent = options.title;
+    descEl.textContent = options.desc;
+    nameField.hidden = !options.showSignupFields;
+    usernameField.hidden = !options.showSignupFields;
+    passwordField.hidden = !options.showPassword;
+    identifierLabel.textContent = options.identifierLabel;
+    identifierInput.placeholder = options.identifierPlaceholder;
+    identifierInput.type = options.identifierType || 'text';
+    identifierInput.autocomplete = options.identifierAutocomplete || 'username';
+    passwordInput.required = !!options.showPassword;
+    submitBtn.firstChild.nodeValue = options.submitText + ' ';
+    signupToggle.textContent = options.signupText;
+    forgotToggle.textContent = options.forgotText;
+  }
+
+  function setMode(mode) {
+    panel.dataset.mode = mode;
+    errorEl.classList.remove('show');
+    errorEl.textContent = '';
+    successEl.classList.remove('show');
+    successEl.textContent = '';
+    if (mode === 'forgot') {
+      updatePanel({
+        title: 'Forgot password',
+        desc: 'Enter your username or email and RAEDNIRMIS will send password reset instructions.',
+        showSignupFields: false,
+        showPassword: false,
+        identifierLabel: 'Username or Email',
+        identifierPlaceholder: 'juan.delacruz or you@da.gov.ph',
+        submitText: 'Send reset link',
+        signupText: 'Create account',
+        forgotText: 'Back to login'
+      });
+    } else if (mode === 'signup') {
+      updatePanel({
+        title: 'Create account',
+        desc: 'Create a RAEDNIRMIS account. New accounts need admin approval before access.',
+        showSignupFields: true,
+        showPassword: true,
+        identifierLabel: 'Email',
+        identifierPlaceholder: 'you@da.gov.ph',
+        identifierType: 'email',
+        identifierAutocomplete: 'email',
+        submitText: 'Create account',
+        signupText: 'Back to login',
+        forgotText: 'Forgot password?'
+      });
+    } else {
+      updatePanel({
+        title: 'Login to RAEDNIRMIS',
+        desc: 'Access the project registry, dashboard, maps, and requirement tracker.',
+        showSignupFields: false,
+        showPassword: true,
+        identifierLabel: 'Username or Email',
+        identifierPlaceholder: 'juan.delacruz or you@da.gov.ph',
+        submitText: 'Log in',
+        signupText: 'Create account',
+        forgotText: 'Forgot password?'
+      });
+    }
+  }
+
+  function showLogin() {
+    heroTiles.classList.add('login-open');
+    setMode('login');
+    document.getElementById('home').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      var email = document.getElementById('landingLoginEmail');
+      if (email) email.focus();
+    }, 180);
+  }
+
+  function hideLogin() {
+    heroTiles.classList.remove('login-open');
+  }
+
+  function showError(message) {
+    successEl.classList.remove('show');
+    errorEl.textContent = message;
+    errorEl.classList.add('show');
+  }
+
+  function showSuccess(message) {
+    errorEl.classList.remove('show');
+    successEl.textContent = message;
+    successEl.classList.add('show');
+  }
+
+  async function resolveEmail(sb, identifier) {
+    if (identifier.indexOf('@') !== -1) return identifier;
+    var rpcLookup = await sb.rpc('profile_email_for_username', { username_input: identifier });
+    if (!rpcLookup.error && rpcLookup.data) return rpcLookup.data;
+    var lookup = await sb.from('profiles').select('email').eq('username', identifier).maybeSingle();
+    if (lookup.error) throw new Error('Username login requires the profiles username/email columns.');
+    if (!lookup.data || !lookup.data.email) throw new Error('No account found for that username.');
+    return lookup.data.email;
+  }
+
+  document.querySelectorAll('[data-login-trigger]').forEach(function (trigger) {
+    trigger.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      showLogin();
+    });
+  });
+
+  panel.addEventListener('click', function (event) {
+    event.stopPropagation();
+  });
+
+  if (forgotToggle) {
+    forgotToggle.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      setMode(panel.dataset.mode === 'forgot' ? 'login' : 'forgot');
+    });
+  }
+
+  if (signupToggle) {
+    signupToggle.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      setMode(panel.dataset.mode === 'signup' ? 'login' : 'signup');
+    });
+  }
+
+  document.addEventListener('click', function (event) {
+    if (!heroTiles.classList.contains('login-open')) return;
+    if (panel.contains(event.target)) return;
+    hideLogin();
+  });
+
+  panel.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (typeof supabase === 'undefined') {
+      showError('Login service is still loading. Please try again.');
+      return;
+    }
+    var identifier = identifierInput.value.trim();
+    var password = passwordInput.value;
+    var mode = panel.dataset.mode || 'login';
+    if (!identifier || (mode !== 'forgot' && !password)) {
+      showError(mode === 'forgot' ? 'Enter your username or email.' : 'Enter username/email and password.');
+      return;
+    }
+    submitBtn.disabled = true;
+    errorEl.classList.remove('show');
+    successEl.classList.remove('show');
+    try {
+      var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      if (mode === 'signup') {
+        var name = document.getElementById('landingSignupName').value.trim();
+        var username = document.getElementById('landingSignupUsername').value.trim();
+        var email = identifier;
+        if (!name) {
+          showError('Enter your full name.');
+          submitBtn.disabled = false;
+          submitBtn.firstChild.nodeValue = 'Create account ';
+          return;
+        }
+        if (!username) {
+          showError('Enter your username.');
+          submitBtn.disabled = false;
+          submitBtn.firstChild.nodeValue = 'Create account ';
+          return;
+        }
+        if (email.indexOf('@') === -1) {
+          showError('Enter a valid email address.');
+          submitBtn.disabled = false;
+          submitBtn.firstChild.nodeValue = 'Create account ';
+          return;
+        }
+        submitBtn.firstChild.nodeValue = 'Creating account ';
+        var signupResult = await sb.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { full_name: name, username: username } }
+        });
+        if (signupResult.error) {
+          showError(signupResult.error.message);
+          submitBtn.disabled = false;
+          submitBtn.firstChild.nodeValue = 'Create account ';
+          return;
+        }
+        if (signupResult.data.user) {
+          var profile = { id: signupResult.data.user.id, name: name, username: username, email: email, role: 'member', approved: false };
+          var insertResult = await sb.from('profiles').insert(profile);
+          if (insertResult.error) {
+            await sb.from('profiles').insert({ id: signupResult.data.user.id, name: name, role: 'member', approved: false });
+          }
+        }
+        setMode('login');
+        showSuccess('Account created. Please wait for admin approval before logging in.');
+        submitBtn.disabled = false;
+        return;
+      }
+      if (mode === 'forgot') {
+        submitBtn.firstChild.nodeValue = 'Sending reset link ';
+        var resetEmail = await resolveEmail(sb, identifier);
+        var resetOptions = {};
+        if (window.location.protocol !== 'file:') {
+          resetOptions.redirectTo = window.location.origin + window.location.pathname;
+        }
+        var resetResult = await sb.auth.resetPasswordForEmail(resetEmail, resetOptions);
+        if (resetResult.error) {
+          showError(resetResult.error.message);
+        } else {
+          showSuccess('Password reset instructions were sent to your email.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.firstChild.nodeValue = 'Send reset link ';
+        return;
+      }
+      submitBtn.firstChild.nodeValue = 'Logging in ';
+      var loginEmail = await resolveEmail(sb, identifier);
+      var result = await sb.auth.signInWithPassword({ email: loginEmail, password: password });
+      if (result.error) {
+        showError(result.error.message);
+        submitBtn.disabled = false;
+        submitBtn.firstChild.nodeValue = 'Log in ';
+        return;
+      }
+      window.location.href = 'tracker.html';
+    } catch (err) {
+      showError(err && err.message ? err.message : 'Unable to continue. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.firstChild.nodeValue = mode === 'forgot' ? 'Send reset link ' : (mode === 'signup' ? 'Create account ' : 'Log in ');
+    }
+  });
 })();
 
 /* ---------- scroll reveal system ---------- */
@@ -502,6 +839,7 @@
     { key: 'ssip', label: 'Small Scale Irrigation Projects', color: '#f2b505' },
     { key: 'fmr', label: 'Farm-to-Market Roads', color: '#1f63d0' }
   ];
+  var PROJECT_TYPE_MAX_COUNT = 300;
 
   function setStat(key, value) {
     document.querySelectorAll('[data-stat="' + key + '"]').forEach(function (el) {
@@ -522,17 +860,14 @@
     var wrap = document.querySelector('[data-project-types-list]');
     if (!wrap) return;
 
-    var maxType = Math.max.apply(null, PROJECT_TYPES.map(function (type) {
-      return typeCounts[type.key] || 0;
-    }).concat([1]));
-
     wrap.innerHTML = PROJECT_TYPES.map(function (type) {
       var count = typeCounts[type.key] || 0;
-      var pct = Math.round((count / maxType) * 100);
+      var displayCount = count > PROJECT_TYPE_MAX_COUNT ? PROJECT_TYPE_MAX_COUNT + '+' : count;
+      var pct = Math.min(100, Math.round((count / PROJECT_TYPE_MAX_COUNT) * 100));
       return '<div>' +
         '<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px;">' +
           '<div style="font-size: 14px; font-weight: 600; color: #35443b;">' + escapeHtml(type.label) + '</div>' +
-          '<div data-stat="type-' + escapeHtml(type.key) + '" style="font-size: 15px; font-weight: 800; color: #1c2a22;">' + count + '</div>' +
+          '<div data-stat="type-' + escapeHtml(type.key) + '" style="font-size: 15px; font-weight: 800; color: #1c2a22;">' + displayCount + '</div>' +
         '</div>' +
         '<div style="width: 100%; height: 9px; background: #eff1ec; border-radius: 3px; overflow: hidden;">' +
           '<div class="bar-fill is-in" data-bar="type-' + escapeHtml(type.key) + '" style="height: 100%; width: ' + pct + '%; background: ' + type.color + '; border-radius: 0 4px 4px 0;"></div>' +
