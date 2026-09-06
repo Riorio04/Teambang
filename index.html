@@ -1171,9 +1171,10 @@ function attachAuthHandlers(){
   attachLandingHandlers();   // the page behind the dialog stays interactive
 
   const close = ()=>{ STATE.view='landing'; STATE.authError=''; STATE.authNote=''; render(); };
+  // Only the close button dismisses this. Clicking the page behind it used
+  // to close the dialog too, which threw away a half typed username and
+  // password on a stray click.
   const x = document.getElementById('authClose'); if(x) x.onclick = close;
-  const scrim = document.getElementById('authScrim');
-  if(scrim) scrim.onclick = (e)=>{ if(e.target===scrim) close(); };
 
   const tog = document.getElementById('authToggle');
   if(tog) tog.onclick = (e)=>{
