@@ -873,6 +873,10 @@ async function boot(){
   sb.auth.onAuthStateChange((event, session)=>{
     STATE.session = session;
     if(event==='PASSWORD_RECOVERY'){
+      // The token has been read by now, so take it out of the address bar:
+      // it does not belong in browser history, and leaving it there would
+      // attach it to the next reset request's redirect.
+      try{ history.replaceState(null, '', appUrl()); }catch(e){}
       STATE.authError=''; STATE.authNote='';
       STATE.view='recover'; render();
       return;
@@ -1032,6 +1036,17 @@ function lockNotice(seconds){
        + 'Choose "Forgot password?" to reset it and get back in now.';
 }
 
+// Where a reset link should come back to: the page itself, with no query or
+// hash. location.href would carry whatever is already in the address bar,
+// and after one recovery attempt that includes the #access_token fragment.
+// A redirect carrying it no longer matches the allowed redirect list, so
+// Supabase falls back to the project's Site URL — which is why a stale
+// recovery link sent people to localhost, and why each further attempt
+// stayed broken.
+function appUrl(){
+  return window.location.origin + window.location.pathname;
+}
+
 // Seconds left on an account's lock, 0 when it is not locked.
 async function loginLockSeconds(identifier){
   const { data, error } = await sb.rpc('rdnis_login_lock_seconds', { identifier });
@@ -1137,7 +1152,7 @@ function attachAuthHandlers(){
     if(!identifier){ STATE.authError='Enter your username or email first, then choose Forgot password.'; render(); return; }
     const email = await emailForLogin(identifier);
     if(!email){ STATE.authError='No account found with that username.'; STATE.authNote=''; render(); return; }
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: appUrl() });
     if(error){ STATE.authError = error.message; }
     else {
       STATE.authError='';
