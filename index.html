@@ -330,6 +330,7 @@
   .auth-h{font-size:29px;font-weight:800;color:#1c2a22;letter-spacing:-.4px;margin-bottom:9px;line-height:1.15;}
   .auth-sub{font-size:14.5px;color:#6b7a70;line-height:1.55;margin-bottom:26px;}
   .auth-lbl{font-size:12px;font-weight:700;color:#55655c;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+  .auth-hint{font-size:12px;color:#6b7a70;margin-top:7px;line-height:1.45;}
   .auth-in{width:100%;padding:15px 17px;border-radius:12px;border:1px solid #dcdfd5;font-size:15px;
     color:#1c2a22;background:#fff;outline:none;font-family:inherit;transition:border-color .15s ease, box-shadow .15s ease;}
   .auth-in:focus{border-color:#1f7a3d;box-shadow:0 0 0 3px rgba(31,122,61,.14);}
@@ -934,6 +935,25 @@ function render(){
 }
 
 /* ============ AUTH (login / signup) ============ */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_RE = /^[A-Za-z0-9._-]{3,30}$/;
+
+// Sign-in accepts either the username or the email the account was made
+// with. Anything without an @ is treated as a username and resolved to its
+// email here, because Supabase authenticates on the email and the profiles
+// table is not readable until someone is signed in. The lookup is a
+// security definer function, so it answers for signed-out visitors.
+// Returns the email, or null when no account carries that username.
+async function emailForLogin(identifier){
+  if(identifier.includes('@')) return identifier;
+  const { data, error } = await sb.rpc('profile_email_for_username', { username_input: identifier });
+  if(error){
+    console.error('[RDNIS] username lookup failed:', error);
+    return null;
+  }
+  return data || null;
+}
+
 function renderAuth(){
   const isLogin = STATE.authMode==='login';
   const arrow = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
@@ -958,12 +978,21 @@ function renderAuth(){
         ${!isLogin?`
         <div>
           <div class="auth-lbl">Full name</div>
-          <input id="authName" class="auth-in" type="text" placeholder="Juan Dela Cruz">
+          <input id="authName" class="auth-in" type="text" placeholder="Juan Dela Cruz" autocomplete="name">
+        </div>
+
+        <div>
+          <div class="auth-lbl">Username</div>
+          <input id="authUsername" class="auth-in" type="text" placeholder="juan02" autocomplete="username">
+          <div class="auth-hint">Letters, numbers, dot, dash or underscore. You can sign in with this or your email.</div>
         </div>`:''}
 
         <div>
-          <div class="auth-lbl">Username or email</div>
-          <input id="authEmail" class="auth-in" type="email" placeholder="juan02 or you@gmail.com" autocomplete="username">
+          <div class="auth-lbl">${isLogin?'Username or email':'Email address'}</div>
+          <input id="authEmail" class="auth-in"
+                 type="${isLogin?'text':'email'}"
+                 placeholder="${isLogin?'juan02 or you@gmail.com':'you@gmail.com'}"
+                 autocomplete="${isLogin?'username':'email'}">
         </div>
 
         <div>
@@ -1003,32 +1032,64 @@ function attachAuthHandlers(){
   const forgot = document.getElementById('authForgot');
   if(forgot) forgot.onclick = async (e)=>{
     e.preventDefault();
-    const email = (document.getElementById('authEmail').value||'').trim();
-    if(!email){ STATE.authError='Enter your email address first, then choose Forgot password.'; render(); return; }
+    const identifier = (document.getElementById('authEmail').value||'').trim();
+    if(!identifier){ STATE.authError='Enter your username or email first, then choose Forgot password.'; render(); return; }
+    const email = await emailForLogin(identifier);
+    if(!email){ STATE.authError='No account found with that username.'; STATE.authNote=''; render(); return; }
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
     if(error){ STATE.authError = error.message; }
-    else { STATE.authError=''; STATE.authNote='Password reset link sent to ' + email + '.'; }
+    else {
+      STATE.authError='';
+      // The address is only echoed back when they typed it themselves —
+      // resolving it from a username would disclose it to whoever guessed
+      // the username.
+      STATE.authNote = identifier.includes('@')
+        ? 'Password reset link sent to ' + email + '.'
+        : 'Password reset link sent to the email on that account.';
+    }
     render();
   };
 
   const submit = document.getElementById('authSubmit');
   if(submit) submit.onclick = async ()=>{
-    const email = document.getElementById('authEmail').value.trim();
+    const identifier = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value;
-    if(!email || !password){ STATE.authError='Enter your email and password.'; STATE.authNote=''; render(); return; }
-    submit.disabled = true;
+    const fail = (msg)=>{ STATE.authError=msg; STATE.authNote=''; submit.disabled=false; render(); };
+
     if(STATE.authMode==='signup'){
       const name = document.getElementById('authName').value.trim();
-      if(!name){ STATE.authError='Enter your full name.'; submit.disabled=false; render(); return; }
-      const { data, error } = await sb.auth.signUp({ email, password });
-      if(error){ STATE.authError=error.message; submit.disabled=false; render(); return; }
-      if(data.user){ await sb.from('profiles').insert({ id:data.user.id, name, role:'member', approved:false }); }
+      const username = document.getElementById('authUsername').value.trim();
+      if(!name) return fail('Enter your full name.');
+      if(!username) return fail('Choose a username.');
+      if(!USERNAME_RE.test(username)) return fail('Usernames are 3 to 30 characters, using letters, numbers, dot, dash or underscore.');
+      if(!EMAIL_RE.test(identifier)) return fail('Enter a valid email address.');
+      if(!password) return fail('Choose a password.');
+      submit.disabled = true;
+
+      // Checked before the account is created, so a clash cannot strand an
+      // auth user with no profile. The unique index is still the real guard.
+      if(await emailForLogin(username)) return fail('That username is already taken.');
+
+      const { data, error } = await sb.auth.signUp({ email: identifier, password });
+      if(error) return fail(error.message);
+      if(data.user){
+        const { error: pErr } = await sb.from('profiles')
+          .insert({ id:data.user.id, name, username, email:identifier, role:'member', approved:false });
+        if(pErr) return fail(pErr.code==='23505'
+          ? 'That username or email is already registered.'
+          : 'The account was created but its profile could not be saved: ' + pErr.message);
+      }
       toast('Account created — waiting for admin approval');
-      STATE.authMode='login'; STATE.authError=''; STATE.authNote='Account created. An admin must approve it before you can sign in.';
+      STATE.authMode='login'; STATE.authError='';
+      STATE.authNote='Account created. An admin must approve it before you can sign in.';
       render();
     } else {
+      if(!identifier || !password) return fail('Enter your username or email, and your password.');
+      submit.disabled = true;
+      const email = await emailForLogin(identifier);
+      if(!email) return fail('No account found with that username.');
       const { error } = await sb.auth.signInWithPassword({ email, password });
-      if(error){ STATE.authError=error.message; submit.disabled=false; render(); return; }
+      if(error) return fail(error.message);
       STATE.view='loading'; render();
       await loadEverything();
     }
