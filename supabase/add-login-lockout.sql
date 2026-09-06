@@ -17,6 +17,32 @@ alter table public.profiles
   add column if not exists failed_logins integer not null default 0,
   add column if not exists locked_until timestamptz;
 
+-- Resolves a username or email to the account it belongs to.
+--
+-- auth.users is consulted as well as profiles.email: sign-up only began
+-- recording the address on the profile recently, so every account made
+-- before then has a null there while auth still holds the real address.
+-- Matching on profiles alone silently found nothing for those accounts, so
+-- they could never be locked.
+create or replace function public.rdnis_account_for_identifier(identifier text)
+returns uuid
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select p.id
+  from public.profiles p
+  left join auth.users u on u.id = p.id
+  where nullif(trim(identifier), '') is not null
+    and (
+      lower(p.username) = lower(trim(identifier))
+      or lower(p.email)  = lower(trim(identifier))
+      or lower(u.email)  = lower(trim(identifier))
+    )
+  limit 1
+$$;
+
 -- Seconds left on the lock, 0 when the account is not locked.
 create or replace function public.rdnis_login_lock_seconds(identifier text)
 returns integer
@@ -28,7 +54,7 @@ as $$
   select coalesce((
     select greatest(0, ceil(extract(epoch from (p.locked_until - now()))))::integer
     from public.profiles p
-    where (lower(p.username) = lower(identifier) or lower(p.email) = lower(identifier))
+    where p.id = public.rdnis_account_for_identifier(identifier)
       and p.locked_until is not null
     limit 1
   ), 0)
@@ -46,11 +72,7 @@ declare
   target uuid;
   attempts integer;
 begin
-  select p.id into target
-    from public.profiles p
-   where lower(p.username) = lower(identifier)
-      or lower(p.email) = lower(identifier)
-   limit 1;
+  target := public.rdnis_account_for_identifier(identifier);
 
   -- An identifier that matches no account is not counted and answers the
   -- same as a first failure, so this cannot be used to discover which
@@ -84,6 +106,7 @@ as $$
    where id = auth.uid()
 $$;
 
+grant execute on function public.rdnis_account_for_identifier(text) to anon, authenticated;
 grant execute on function public.rdnis_login_lock_seconds(text) to anon, authenticated;
 grant execute on function public.rdnis_note_failed_login(text) to anon, authenticated;
 grant execute on function public.rdnis_clear_login_failures() to authenticated;
