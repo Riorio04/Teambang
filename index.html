@@ -1196,7 +1196,14 @@ function attachAuthHandlers(){
 
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if(error){
-        const { data: left } = await sb.rpc('rdnis_note_failed_login', { identifier });
+        const { data: left, error: countErr } = await sb.rpc('rdnis_note_failed_login', { identifier });
+        // Said out loud rather than swallowed: if the count is not being
+        // recorded then the limit is not being enforced, and silence there
+        // reads exactly like a lockout that works.
+        if(countErr){
+          console.error('[RDNIS] failed sign-in was not counted:', countErr);
+          return fail('Incorrect password. (The attempt limit is not being recorded — please report this.)');
+        }
         const remaining = Number(left);
         if(remaining <= 0) return fail(lockNotice(LOCK_MINUTES * 60));
         // The countdown only appears once it is close, so a single typo does
