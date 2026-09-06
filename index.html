@@ -854,11 +854,46 @@ let STATE = {
   progressProjectId:null, pendingExif:null, planDraft:null,
 };
 
+// A recovery link carries type=recovery, in the hash on the implicit flow
+// and in the query string on PKCE. Read straight from the URL rather than
+// waiting to be told: supabase-js consumes the link while the client starts
+// up, so the PASSWORD_RECOVERY event can be raised before anything has
+// subscribed, and is then gone.
+function isRecoveryUrl(){
+  return /(^|[#&?])type=recovery(&|$)/.test(window.location.hash || '')
+      || /(^|[&?])type=recovery(&|$)/.test(window.location.search || '');
+}
+
 async function boot(){
   applyBrandImages();
   startIdleWatch();
+
+  // Subscribed before the session is read, so an event raised during
+  // start-up still reaches us.
+  attachAuthListener();
+
+  const recovering = isRecoveryUrl();
   const { data:{ session } } = await sb.auth.getSession();
   STATE.session = session;
+
+  if(recovering){
+    // The token has been read by now, so take it out of the address bar: it
+    // does not belong in browser history, and leaving it there would attach
+    // it to the next reset request's redirect.
+    try{ history.replaceState(null, '', appUrl()); }catch(e){}
+    if(session){
+      markActivity();
+      STATE.authError=''; STATE.authNote='';
+      STATE.view='recover'; render();
+      return;
+    }
+    // Said plainly rather than dropping them on the landing page with no
+    // idea why the link did nothing.
+    STATE.view='login'; STATE.authMode='login'; STATE.authError='';
+    STATE.authNote='That reset link has expired or was already used. Enter your username or email and choose "Forgot password?" for a new one.';
+    render(); await fetchLandingStats(); render();
+    return;
+  }
 
   // A session survives closing the tab, so the idle limit is enforced on the
   // way back in as well as while the page is open.
@@ -869,7 +904,9 @@ async function boot(){
 
   if(session){ markActivity(); await loadEverything(); }
   else { STATE.view='landing'; render(); await fetchLandingStats(); render(); }
+}
 
+function attachAuthListener(){
   sb.auth.onAuthStateChange((event, session)=>{
     STATE.session = session;
     if(event==='PASSWORD_RECOVERY'){
