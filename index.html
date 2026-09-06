@@ -846,7 +846,7 @@ function attachLandingHandlers(){
 
 /* ============ STATE ============ */
 let STATE = {
-  view:'loading', session:null, profile:null, authMode:'login', authError:'', authNote:'', stats:null,
+  view:'loading', session:null, profile:null, authMode:'login', authError:'', authNote:'', idleSignOut:false, stats:null,
   users:{}, projects:{}, adminPending:[],
   menuOpen:false, openNav:null, typePageType:null, typePageTab:'register', pageMode:'dashboard',
   expandedProjectId:null, searchQuery:'', viewFilterType:'',
@@ -856,13 +856,39 @@ let STATE = {
 
 async function boot(){
   applyBrandImages();
+  startIdleWatch();
   const { data:{ session } } = await sb.auth.getSession();
   STATE.session = session;
-  if(session){ await loadEverything(); }
+
+  // A session survives closing the tab, so the idle limit is enforced on the
+  // way back in as well as while the page is open.
+  if(session && idleMsElapsed() > IDLE_LIMIT_MS){
+    await signOutIdle();
+    return;
+  }
+
+  if(session){ markActivity(); await loadEverything(); }
   else { STATE.view='landing'; render(); await fetchLandingStats(); render(); }
+
   sb.auth.onAuthStateChange((event, session)=>{
     STATE.session = session;
-    if(event==='SIGNED_OUT'){ STATE.profile=null; STATE.stats=null; STATE.view='landing'; render(); fetchLandingStats().then(render); }
+    if(event==='PASSWORD_RECOVERY'){
+      STATE.authError=''; STATE.authNote='';
+      STATE.view='recover'; render();
+      return;
+    }
+    if(event==='SIGNED_OUT'){
+      STATE.profile=null; STATE.stats=null;
+      if(STATE.idleSignOut){
+        STATE.idleSignOut = false;
+        STATE.view='login'; STATE.authMode='login'; STATE.authError='';
+        STATE.authNote=`You were signed out after ${Math.round(IDLE_LIMIT_MS/60000)} minutes without activity. Log in to continue.`;
+      } else {
+        STATE.view='landing';
+      }
+      render();
+      fetchLandingStats().then(render);
+    }
   });
 }
 
@@ -929,6 +955,7 @@ function render(){
   if(STATE.view==='loading'){ app.innerHTML = `<div class="backdrop"><div class="glass-card"><h3 style="color:var(--stone);text-align:center;">Loading RDNIS…</h3></div></div>`; return; }
   if(STATE.view==='landing'){ app.innerHTML = renderLanding(); attachLandingHandlers(); return; }
   if(STATE.view==='login'){ app.innerHTML = renderAuth(); attachAuthHandlers(); return; }
+  if(STATE.view==='recover'){ app.innerHTML = renderRecover(); attachRecoverHandlers(); return; }
   if(STATE.view==='pending'){ app.innerHTML = renderPending(); attachPendingHandlers(); return; }
 
   let body='';
@@ -950,6 +977,67 @@ function render(){
 /* ============ AUTH (login / signup) ============ */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_RE = /^[A-Za-z0-9._-]{3,30}$/;
+
+// Sign-in lockout. The count itself is kept in the database, because a
+// counter held in the browser is cleared by wiping site data.
+// Both mirror rdnis_note_failed_login; change them together.
+const LOCK_ATTEMPTS = 10;
+const LOCK_MINUTES = 30;
+
+// Someone signed in is dropped after this long without touching anything,
+// so an unattended desk does not leave project data open. The stamp is kept
+// in localStorage so closing the tab and returning later still counts as
+// idle time rather than resetting the clock.
+const IDLE_LIMIT_MS = 30 * 60 * 1000;
+const IDLE_KEY = 'rdnis:last-activity';
+const IDLE_CHECK_MS = 30 * 1000;
+
+function markActivity(){
+  try{ localStorage.setItem(IDLE_KEY, String(Date.now())); }catch(e){}
+}
+function idleMsElapsed(){
+  try{
+    const last = Number(localStorage.getItem(IDLE_KEY));
+    return last ? Date.now() - last : 0;
+  }catch(e){ return 0; }
+}
+
+async function signOutIdle(){
+  STATE.idleSignOut = true;
+  await sb.auth.signOut();
+}
+
+// Checked on a timer as well as on every wake, because a sleeping laptop
+// does not fire the interval while it is asleep.
+function checkIdle(){
+  if(!STATE.session) return;
+  if(idleMsElapsed() > IDLE_LIMIT_MS) signOutIdle();
+}
+
+function startIdleWatch(){
+  if(window.__idleWatchBound) return;
+  window.__idleWatchBound = true;
+  ['pointerdown','keydown','wheel','touchstart'].forEach(ev=>{
+    document.addEventListener(ev, ()=>{ if(STATE.session) markActivity(); }, { passive:true });
+  });
+  // Returning to the tab is not activity — it is the moment to find out how
+  // long they were away.
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkIdle(); });
+  setInterval(checkIdle, IDLE_CHECK_MS);
+}
+
+function lockNotice(seconds){
+  const mins = Math.max(1, Math.ceil(seconds / 60));
+  return `Too many failed sign-ins. This account is locked for about ${mins} more minute${mins===1?'':'s'}. `
+       + 'Choose "Forgot password?" to reset it and get back in now.';
+}
+
+// Seconds left on an account's lock, 0 when it is not locked.
+async function loginLockSeconds(identifier){
+  const { data, error } = await sb.rpc('rdnis_login_lock_seconds', { identifier });
+  if(error){ console.error('[RDNIS] lock check failed:', error); return 0; }
+  return Number(data) || 0;
+}
 
 // Sign-in accepts either the username or the email the account was made
 // with. Anything without an @ is treated as a username and resolved to its
@@ -1099,10 +1187,28 @@ function attachAuthHandlers(){
     } else {
       if(!identifier || !password) return fail('Enter your username or email, and your password.');
       submit.disabled = true;
+
+      const locked = await loginLockSeconds(identifier);
+      if(locked > 0) return fail(lockNotice(locked));
+
       const email = await emailForLogin(identifier);
       if(!email) return fail('No account found with that username.');
+
       const { error } = await sb.auth.signInWithPassword({ email, password });
-      if(error) return fail(error.message);
+      if(error){
+        const { data: left } = await sb.rpc('rdnis_note_failed_login', { identifier });
+        const remaining = Number(left);
+        if(remaining <= 0) return fail(lockNotice(LOCK_MINUTES * 60));
+        // The countdown only appears once it is close, so a single typo does
+        // not read as a threat.
+        if(remaining <= 4){
+          return fail(`Incorrect password. ${remaining} attempt${remaining===1?'':'s'} left before this account is locked.`);
+        }
+        return fail(error.message);
+      }
+
+      await sb.rpc('rdnis_clear_login_failures');
+      markActivity(); startIdleWatch();
       STATE.view='loading'; render();
       await loadEverything();
     }
@@ -1110,6 +1216,51 @@ function attachAuthHandlers(){
 
   const pw = document.getElementById('authPassword');
   if(pw) pw.onkeydown = (e)=>{ if(e.key==='Enter' && submit) submit.click(); };
+}
+
+// Where the emailed reset link lands. Without this the link signed someone
+// in but gave them no way to actually set a new password, so it was no use
+// to anyone locked out.
+function renderRecover(){
+  const arrow = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+  return `<div class="backdrop"><div class="glass-card">
+    <h2>Set a new password</h2>
+    <div class="desc">Choose a new password for your RDNIS account. This also clears any sign-in lock.</div>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:18px;">
+      <div>
+        <div class="auth-lbl">New password</div>
+        <input id="recoverPw" class="auth-in" type="password" placeholder="••••••••••" autocomplete="new-password">
+      </div>
+      <div>
+        <div class="auth-lbl">Confirm new password</div>
+        <input id="recoverPw2" class="auth-in" type="password" placeholder="••••••••••" autocomplete="new-password">
+      </div>
+      ${STATE.authError?`<div class="auth-err">${esc(STATE.authError)}</div>`:''}
+      <button type="button" class="auth-btn" id="recoverSubmit">Save new password ${arrow}</button>
+    </div>
+  </div></div>`;
+}
+
+function attachRecoverHandlers(){
+  const btn = document.getElementById('recoverSubmit');
+  const fail = (msg)=>{ STATE.authError=msg; btn.disabled=false; render(); };
+  btn.onclick = async ()=>{
+    const pw = document.getElementById('recoverPw').value;
+    const pw2 = document.getElementById('recoverPw2').value;
+    if(pw.length < 6) return fail('Use a password of at least 6 characters.');
+    if(pw !== pw2) return fail('Both passwords must match.');
+    btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: pw });
+    if(error) return fail(error.message);
+    await sb.rpc('rdnis_clear_login_failures');
+    toast('Password updated');
+    markActivity(); startIdleWatch();
+    STATE.authError='';
+    STATE.view='loading'; render();
+    await loadEverything();
+  };
+  const pw2 = document.getElementById('recoverPw2');
+  if(pw2) pw2.onkeydown = (e)=>{ if(e.key==='Enter') btn.click(); };
 }
 
 function renderPending(){
