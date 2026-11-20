@@ -12,11 +12,14 @@ import soundfile as sf
 from kokoro_onnx import Kokoro
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MIX = [("am_liam", 0.5), ("af_sky", 0.5)]
-SPEED = 1.1
+MIX = [("am_liam", 0.42), ("af_sky", 0.58)]
+# Pitch lift by plain resampling only (no time-stretch, so no warble): voiced slower by LIFT,
+# then played back LIFT times faster. 1.12 is about two semitones.
+LIFT = 1.12
+SPEED = 1.1 / LIFT
 GAP, SCENE_IN, SCENE_OUT = 0.26, 0.3, 0.6
-# Raises pitch 1.42x keeping resonance, then 1.22x pitch + resonance together: ~265 Hz, a young boy's range.
-VOICE_FILTER = "rubberband=pitch=1.42:formant=preserved:pitchq=quality,asetrate=24000*1.22,aresample=24000,atempo=1/1.22"
+# narration_raw.wav is already lifted (written at 24000*LIFT Hz); this only converts it for the mp3.
+VOICE_FILTER = "aresample=48000"
 
 
 def trim(a, sr, thr=0.012):
@@ -32,21 +35,22 @@ def main(model, voices, out):
     style = sum(k.get_voice_style(v) * w for v, w in MIX)
     script = json.load(open(os.path.join(HERE, "script.json")))
     sr = 24000
+    eff = sr * LIFT  # playback rate: every duration below is in played-back seconds
     chunks, t, timing = [], 0.0, []
     for sc in script:
         start = t
-        chunks.append(np.zeros(int(SCENE_IN * sr))); t += SCENE_IN
+        chunks.append(np.zeros(int(SCENE_IN * eff))); t += SCENE_IN
         phrases = []
         for i, text in enumerate(sc["phrases"]):
             a, sr = k.create(text, voice=style, speed=SPEED, lang="en-us")
             a = trim(a, sr)
-            phrases.append({"text": text, "t": round(t, 3), "d": round(len(a) / sr, 3)})
-            chunks.append(a); t += len(a) / sr
+            phrases.append({"text": text, "t": round(t, 3), "d": round(len(a) / eff, 3)})
+            chunks.append(a); t += len(a) / eff
             gap = GAP if i < len(sc["phrases"]) - 1 else SCENE_OUT
-            chunks.append(np.zeros(int(gap * sr))); t += gap
+            chunks.append(np.zeros(int(gap * eff))); t += gap
         timing.append({"id": sc["id"], "t": round(start, 3), "d": round(t - start, 3), "phrases": phrases})
         print(sc["id"], round(t - start, 2))
-    sf.write(os.path.join(out, "narration_raw.wav"), np.concatenate(chunks).astype(np.float32), sr)
+    sf.write(os.path.join(out, "narration_raw.wav"), np.concatenate(chunks).astype(np.float32), int(round(eff)))
     json.dump(timing, open(os.path.join(out, "timing.json"), "w"), indent=1)
     print("total", round(t, 2))
 
