@@ -1,5 +1,5 @@
 // Renders index.html to MP4 frame by frame.
-// Usage: node render.js [out.mp4] [--fps 30] [--stills 1,20,60]
+// Usage: node render.js [out.mp4] [--fps 30] [--stills 1,20,60] [--page index.html] [--audio narration.mp3]
 // Needs: Playwright (Chromium) and ffmpeg on PATH. GSAP is served from node_modules when present.
 const fs = require('fs');
 const path = require('path');
@@ -13,15 +13,17 @@ const out = args[0] && !args[0].startsWith('--') ? args[0] : path.join(__dirname
 const fps = +opt('--fps', 30);
 const stills = opt('--stills', '');
 const gsapLocal = opt('--gsap', '');
+const pageFile = opt('--page', 'index.html');
+const audio = opt('--audio', '');
 
 (async () => {
-  const src = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, pageFile), 'utf8');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'crown-'));
   const page_ = path.join(tmp, 'page.html');
   fs.writeFileSync(page_, '<!doctype html><html><head><meta charset="utf-8"></head><body>' + src + '</body></html>');
 
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 1920, height: 1920 }, deviceScaleFactor: 1 });
   if (gsapLocal) await page.route(/cdnjs\.cloudflare\.com\/.*gsap\.min\.js/, r => r.fulfill({ path: gsapLocal, contentType: 'text/javascript' }));
   await page.goto('file://' + page_ + '?render');
   await page.waitForFunction(() => window.__duration > 0);
@@ -38,7 +40,8 @@ const gsapLocal = opt('--gsap', '');
     return;
   }
 
-  const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-',
+  const audioArgs = audio ? ['-i', path.resolve(__dirname, audio), '-c:a', 'aac', '-b:a', '192k'] : [];
+  const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-', ...audioArgs,
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out],
     { stdio: ['pipe', 'ignore', 'inherit'] });
   const frames = Math.ceil(duration * fps);

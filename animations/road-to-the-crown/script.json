@@ -1,0 +1,19 @@
+[
+  {"id": "hook",   "phrases": ["Three teams.", "One crown.", "Who will be the champion?"]},
+  {"id": "rule1",  "phrases": ["Every series is a best of three.", "Win two, nothing,", "and you get three points."]},
+  {"id": "rule2",  "phrases": ["Win two, one,", "you get two points,", "and the loser still gets one."]},
+  {"id": "res1",   "phrases": ["First,", "Team B swept Team A, two, nothing.", "Three points for B!"]},
+  {"id": "res2",   "phrases": ["Team C won game one against Team A.", "That series is still going."]},
+  {"id": "res3",   "phrases": ["And Team B won game one against Team C.", "That one is still going too."]},
+  {"id": "table",  "phrases": ["So right now,", "Team B has three points.", "C and A have zero."]},
+  {"id": "aout",   "phrases": ["Team A can only reach two points.", "That's not enough to catch B.", "Team A is out of the title race."]},
+  {"id": "next",   "phrases": ["So it's B versus C.", "Next up, game two!"]},
+  {"id": "bwins",  "phrases": ["If B wins game two,", "B gets six points.", "Nobody can catch that.", "Team B is champion!"]},
+  {"id": "cwins",  "phrases": ["But if C wins game two,", "the series goes to game three."]},
+  {"id": "g3b",    "phrases": ["If B wins game three,", "B finishes with five points.", "C can only reach four.", "B is still champion!"]},
+  {"id": "g3c",    "phrases": ["But if C wins game three,", "B is stuck on four points,", "and C has two.", "Now it all depends on C versus A."]},
+  {"id": "o1",     "phrases": ["If C beats A, two, nothing,", "C gets five points,", "and takes the crown!"]},
+  {"id": "o2",     "phrases": ["If A comes back and beats C,", "C stays on three.", "Team B is champion!"]},
+  {"id": "o3",     "phrases": ["And if C beats A, two, one,", "B and C are tied on four points.", "Then they play a head to head match,", "and the winner takes the crown!"]},
+  {"id": "sum",    "phrases": ["So,", "Team B needs just one more win.", "Team C must beat B twice, then beat A.", "Who do you think takes the crown?"]}
+]
