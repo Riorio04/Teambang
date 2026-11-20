@@ -1,0 +1,579 @@
+<title>Road to the Crown</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one 1920x1080 broadcast stage, scaled to fit, with a scrub bar below it. Single dark esports look on purpose. */
+:root {
+  --ink: #0a0f1e;
+  --ink-2: #111830;
+  --panel: #161f3b;
+  --line: #2b3762;
+  --text: #eef1fa;
+  --muted: #94a0c4;
+  --team-a: #3cc8d8;
+  --team-b: #f5b43d;
+  --team-c: #e64b70;
+  --tie: #b9a2f5;
+  --display: "Saira Condensed", "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", "Inter", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--ink); color: var(--text); }
+body { font-family: var(--body); padding-block: 20px 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+.player { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.stage-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; border-radius: 10px; border: 1px solid var(--line); background: var(--ink); }
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: radial-gradient(1200px 700px at 78% 10%, #1b2752 0%, transparent 60%), radial-gradient(900px 600px at 10% 100%, #1a1836 0%, transparent 60%), var(--ink); }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.btn { font: 600 15px/1 var(--body); color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+.btn:hover { border-color: var(--team-b); }
+.btn:focus-visible, .chip:focus-visible, #scrub:focus-visible { outline: 2px solid var(--team-b); outline-offset: 2px; }
+.scrub-row { display: flex; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 0; }
+#scrub { flex: 1; min-width: 0; accent-color: var(--team-b); }
+.time { font: 500 14px/1 var(--body); font-variant-numeric: tabular-nums; color: var(--muted); min-width: 92px; text-align: right; }
+.chapters { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 600 13px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.chip.on { color: var(--ink); background: var(--team-b); border-color: var(--team-b); }
+.note { color: var(--muted); font-size: 14px; line-height: 1.5; max-width: 70ch; }
+
+/* Render mode: bare stage for frame capture */
+body.render { padding: 0; }
+body.render .player { max-width: none; gap: 0; }
+body.render .stage-wrap { width: 1920px; height: 1080px; aspect-ratio: auto; border: 0; border-radius: 0; }
+body.render .controls, body.render .chapters, body.render .note { display: none; }
+
+/* ---------- Stage furniture ---------- */
+.stripes { position: absolute; inset: -200px; background: repeating-linear-gradient(-60deg, rgba(255,255,255,.022) 0 2px, transparent 2px 46px); }
+.slash { position: absolute; width: 1400px; height: 14px; transform: rotate(-20deg); opacity: .9; }
+.bug { position: absolute; left: 60px; top: 44px; display: flex; align-items: center; gap: 14px; font: 700 22px/1 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); z-index: 5; }
+.bug i { width: 10px; height: 10px; background: var(--team-c); border-radius: 50%; box-shadow: 0 0 12px var(--team-c); }
+.scene { position: absolute; inset: 0; visibility: hidden; }
+.eyebrow { font: 700 26px/1 var(--display); letter-spacing: .22em; text-transform: uppercase; color: var(--team-b); }
+.h1 { font: 800 76px/1 var(--display); text-transform: uppercase; letter-spacing: .01em; }
+.lead { font: 500 34px/1.35 var(--body); color: var(--muted); }
+.ta { color: var(--team-a); } .tb { color: var(--team-b); } .tc { color: var(--team-c); } .tt { color: var(--tie); }
+
+.shield { width: 230px; height: 260px; clip-path: polygon(50% 0, 100% 22%, 100% 70%, 50% 100%, 0 70%, 0 22%); display: grid; place-items: center; font: 800 150px/1 var(--display); color: var(--ink); }
+.shield.sm { width: 74px; height: 84px; font-size: 50px; }
+.shield.xs { width: 46px; height: 52px; font-size: 32px; }
+.s-a { background: linear-gradient(160deg, #8ae6ef, var(--team-a) 55%, #1f8c99); }
+.s-b { background: linear-gradient(160deg, #ffe1a1, var(--team-b) 55%, #b97a12); }
+.s-c { background: linear-gradient(160deg, #ff9cb3, var(--team-c) 55%, #a02348); }
+
+/* Intro */
+#intro .title-block { position: absolute; left: 120px; top: 250px; width: 980px; display: flex; flex-direction: column; gap: 30px; }
+#intro .big { font: 800 200px/.86 var(--display); text-transform: uppercase; }
+#intro .big span { display: block; }
+#intro .teams { position: absolute; right: 120px; top: 300px; display: flex; gap: 40px; }
+#intro .team { display: flex; flex-direction: column; align-items: center; gap: 22px; font: 700 34px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; }
+
+/* Rules */
+.scene-head { position: absolute; left: 120px; top: 120px; display: flex; flex-direction: column; gap: 18px; }
+#rules .cards { position: absolute; left: 120px; right: 120px; top: 360px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+.rule { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 44px 50px; display: flex; flex-direction: column; gap: 30px; }
+.rule .tag { font: 800 64px/1 var(--display); }
+.rule .dots { display: flex; gap: 16px; }
+.dot { width: 62px; height: 62px; border-radius: 10px; border: 2px dashed var(--line); display: grid; place-items: center; font: 700 26px/1 var(--display); color: var(--muted); }
+.dot.w { border: 0; color: var(--ink); background: var(--team-b); }
+.dot.l { border: 0; color: var(--ink); background: var(--team-c); }
+.rule .pts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.pt { display: flex; flex-direction: column; gap: 8px; }
+.pt b { font: 800 96px/1 var(--display); }
+.pt span { font: 600 24px/1 var(--body); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+#rules .foot { position: absolute; left: 120px; bottom: 90px; font: 500 32px/1.3 var(--body); color: var(--muted); }
+
+/* Series */
+#series .rows { position: absolute; left: 120px; right: 120px; top: 330px; display: flex; flex-direction: column; gap: 34px; }
+.srow { display: grid; grid-template-columns: 420px 1fr 360px; align-items: center; gap: 40px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 26px 40px; position: relative; overflow: hidden; }
+.vs { display: flex; align-items: center; gap: 20px; font: 800 40px/1 var(--display); }
+.vs em { font-style: normal; color: var(--muted); font-size: 28px; }
+.games { display: flex; gap: 18px; align-items: center; }
+.gslot { width: 150px; height: 84px; border-radius: 10px; border: 2px dashed var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 700 22px/1 var(--display); color: var(--muted); letter-spacing: .08em; }
+.gslot.fa { border: 0; background: var(--team-a); color: var(--ink); }
+.gslot.fb { border: 0; background: var(--team-b); color: var(--ink); }
+.gslot.fc { border: 0; background: var(--team-c); color: var(--ink); }
+.gslot small { font: 600 16px/1 var(--body); letter-spacing: .06em; opacity: .8; }
+.gslot.dim { opacity: .35; }
+.sstat { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; text-align: right; }
+.score { font: 800 64px/1 var(--display); font-variant-numeric: tabular-nums; }
+.pill { font: 700 20px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; padding: 8px 14px; border-radius: 6px; }
+.pill.final { background: var(--text); color: var(--ink); }
+.pill.live { background: transparent; color: var(--team-c); border: 2px solid var(--team-c); }
+.pill.next { background: var(--team-b); color: var(--ink); }
+.srow .glow { position: absolute; inset: 0; border: 3px solid var(--team-b); border-radius: 14px; pointer-events: none; }
+
+/* Standings */
+#table .grid { position: absolute; left: 120px; right: 120px; top: 330px; display: flex; flex-direction: column; gap: 18px; }
+.trow { display: grid; grid-template-columns: 90px 260px 220px 1fr 160px 170px; align-items: center; gap: 30px; padding: 20px 36px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.trow.head { background: transparent; border: 0; padding-block: 0; font: 700 22px/1 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.trow .rank { font: 800 54px/1 var(--display); color: var(--muted); }
+.trow .name { display: flex; align-items: center; gap: 20px; font: 800 44px/1 var(--display); text-transform: uppercase; }
+.trow .rec { font: 600 30px/1 var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 22px; background: var(--ink-2); border-radius: 11px; position: relative; overflow: hidden; }
+.bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 11px; }
+.bar u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 11px; border: 2px dashed currentColor; opacity: .5; }
+.trow .num { font: 800 64px/1 var(--display); text-align: right; font-variant-numeric: tabular-nums; }
+.trow .max { font: 700 40px/1 var(--display); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stamp { position: absolute; right: 360px; top: 50%; transform: translateY(-50%) rotate(-6deg); font: 800 40px/1 var(--display); letter-spacing: .18em; color: var(--team-c); border: 4px solid var(--team-c); padding: 8px 18px; border-radius: 8px; background: rgba(10,15,30,.85); }
+#table .foot { position: absolute; left: 120px; right: 120px; bottom: 80px; font: 500 32px/1.35 var(--body); color: var(--muted); }
+
+/* Next match */
+#next .center { position: absolute; left: 0; right: 0; top: 150px; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+#next .face { display: flex; align-items: center; gap: 70px; }
+#next .face .vsx { font: 800 110px/1 var(--display); color: var(--muted); }
+#next .gameno { font: 800 54px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; }
+#next .split { position: absolute; left: 120px; right: 120px; top: 640px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+.if { border-radius: 14px; padding: 34px 44px; display: flex; flex-direction: column; gap: 16px; background: var(--panel); border: 1px solid var(--line); }
+.if.b { border-left: 10px solid var(--team-b); }
+.if.c { border-left: 10px solid var(--team-c); }
+.if h3 { margin: 0; font: 800 46px/1 var(--display); text-transform: uppercase; }
+.if p { margin: 0; font: 500 30px/1.35 var(--body); color: var(--muted); }
+.if p b { color: var(--text); }
+
+/* Tree */
+#tree .scene-head { top: 92px; gap: 12px; }
+#tree .h1 { font-size: 62px; }
+#tree .caps { position: relative; height: 44px; width: 1700px; }
+#tree .cap { position: absolute; left: 0; top: 0; font: 500 32px/1.3 var(--body); color: var(--muted); white-space: nowrap; }
+#tree .cap b { color: var(--text); }
+#wires { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
+#wires path { fill: none; stroke-width: 4; stroke-linecap: round; }
+.node { position: absolute; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); padding: 16px 22px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.node .k { font: 800 32px/1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.node .v { font: 500 21px/1.2 var(--body); color: var(--muted); }
+.node.edge-a { border-left: 8px solid var(--team-a); }
+.node.edge-b { border-left: 8px solid var(--team-b); }
+.node.edge-c { border-left: 8px solid var(--team-c); }
+.node.edge-n { border-left: 8px solid var(--muted); }
+.leaf { position: absolute; border-radius: 12px; padding: 12px 20px; display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: center; }
+.leaf .k { font: 800 30px/1 var(--display); text-transform: uppercase; color: var(--ink); }
+.leaf .v { font: 600 19px/1.2 var(--body); color: var(--ink); opacity: .82; }
+.leaf.lb { background: var(--team-b); }
+.leaf.lc { background: var(--team-c); }
+.leaf.lt { background: var(--tie); }
+.crown { width: 52px; height: 40px; }
+
+/* Grid */
+#grid .board { position: absolute; left: 120px; top: 300px; display: grid; grid-template-columns: 250px repeat(3, 350px); grid-auto-rows: auto; gap: 16px; }
+.gh { font: 700 24px/1.15 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.gh b { font: 800 34px/1 var(--display); color: var(--text); letter-spacing: .02em; }
+.gh.col { padding: 0 8px 6px; }
+.cell { height: 160px; border-radius: 12px; padding: 18px 22px; display: flex; flex-direction: column; justify-content: space-between; background: var(--panel); border: 2px solid var(--line); position: relative; }
+.cell .who { font: 800 34px/1 var(--display); text-transform: uppercase; }
+.cell .line { font: 600 24px/1 var(--body); font-variant-numeric: tabular-nums; color: var(--muted); display: flex; gap: 16px; }
+.cell.cb { border-color: var(--team-b); } .cell.cb .who { color: var(--team-b); }
+.cell.cc { border-color: var(--team-c); background: #2a1730; } .cell.cc .who { color: var(--team-c); }
+.cell.ct { border-color: var(--tie); background: #221f3f; } .cell.ct .who { color: var(--tie); }
+#grid .tally { position: absolute; right: 120px; top: 300px; width: 290px; display: flex; flex-direction: column; gap: 16px; }
+.tl { display: flex; flex-direction: column; gap: 6px; padding: 16px 22px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.tl b { font: 800 60px/1 var(--display); font-variant-numeric: tabular-nums; }
+.tl span { font: 600 22px/1.2 var(--body); color: var(--muted); }
+#grid .foot { position: absolute; left: 120px; bottom: 50px; font: 500 26px/1.3 var(--body); color: var(--muted); }
+
+/* Outro */
+#outro .cards { position: absolute; left: 120px; right: 120px; top: 330px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.take { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 36px 38px; display: flex; flex-direction: column; gap: 22px; border-top: 10px solid var(--c); }
+.take .tt2 { display: flex; align-items: center; gap: 18px; font: 800 44px/1 var(--display); text-transform: uppercase; }
+.take p { margin: 0; font: 500 29px/1.35 var(--body); color: var(--muted); }
+.take p b { color: var(--text); }
+.take .odds { margin-top: auto; font: 700 24px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--c); }
+#outro .foot { position: absolute; left: 120px; right: 120px; bottom: 60px; font: 500 25px/1.4 var(--body); color: var(--muted); border-top: 1px solid var(--line); padding-top: 22px; }
+#outro .foot b { color: var(--tie); }
+
+@media (max-width: 640px) { .time { min-width: 0; } .btn { padding: 9px 12px; } }
+</style>
+
+<div class="player">
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage">
+      <div class="stripes" id="stripes"></div>
+      <div class="slash" id="slashB" style="left:900px;top:-80px;background:var(--team-b)"></div>
+      <div class="slash" id="slashC" style="left:1100px;top:-40px;background:var(--team-c);height:6px"></div>
+      <div class="bug"><i></i>3-Team Round Robin · Best of 3</div>
+
+      <!-- 1. Intro -->
+      <section class="scene" id="intro">
+        <div class="title-block">
+          <div class="eyebrow" data-in>Mobile Legends · Tournament Update</div>
+          <div class="big"><span data-in>Road to</span><span data-in class="tb">the Crown</span></div>
+          <div class="lead" data-in>Three teams, three Best-of-3 series. Here is where it stands, and every way it can end.</div>
+        </div>
+        <div class="teams">
+          <div class="team" data-team><div class="shield s-a">A</div><span class="ta">Team A</span></div>
+          <div class="team" data-team><div class="shield s-b">B</div><span class="tb">Team B</span></div>
+          <div class="team" data-team><div class="shield s-c">C</div><span class="tc">Team C</span></div>
+        </div>
+      </section>
+
+      <!-- 2. Rules -->
+      <section class="scene" id="rules">
+        <div class="scene-head"><div class="eyebrow" data-in>Step 1</div><div class="h1" data-in>How points work</div></div>
+        <div class="cards">
+          <div class="rule" data-card>
+            <div class="tag tb">2–0 Sweep</div>
+            <div class="dots"><div class="dot w" data-dot>W</div><div class="dot w" data-dot>W</div><div class="dot" data-dot>—</div></div>
+            <div class="pts"><div class="pt"><b class="tb">3</b><span>Winner</span></div><div class="pt"><b style="color:var(--muted)">0</b><span>Loser</span></div></div>
+          </div>
+          <div class="rule" data-card>
+            <div class="tag tb">2–1 Series</div>
+            <div class="dots"><div class="dot w" data-dot>W</div><div class="dot l" data-dot>L</div><div class="dot w" data-dot>W</div></div>
+            <div class="pts"><div class="pt"><b class="tb">2</b><span>Winner</span></div><div class="pt"><b class="tc">1</b><span>Loser</span></div></div>
+          </div>
+        </div>
+        <div class="foot" data-in>Every team plays the other two once. Most points at the end wins the tournament.</div>
+      </section>
+
+      <!-- 3. Series status -->
+      <section class="scene" id="series">
+        <div class="scene-head"><div class="eyebrow" data-in>Step 2</div><div class="h1" data-in>The three series so far</div></div>
+        <div class="rows">
+          <div class="srow" data-row>
+            <div class="vs"><div class="shield xs s-a">A</div><em>vs</em><div class="shield xs s-b">B</div></div>
+            <div class="games"><div class="gslot fb" data-g>B<small>Game 1</small></div><div class="gslot fb" data-g>B<small>Game 2</small></div><div class="gslot dim" data-g>Not needed</div></div>
+            <div class="sstat"><div class="score"><span class="ta">0</span>–<span class="tb">2</span></div><div class="pill final" data-pill>Final · B +3 pts</div></div>
+          </div>
+          <div class="srow" data-row>
+            <div class="vs"><div class="shield xs s-a">A</div><em>vs</em><div class="shield xs s-c">C</div></div>
+            <div class="games"><div class="gslot fc" data-g>C<small>Game 1</small></div><div class="gslot" data-g>Game 2</div><div class="gslot" data-g>Game 3?</div></div>
+            <div class="sstat"><div class="score"><span class="ta">0</span>–<span class="tc">1</span></div><div class="pill live" data-pill>Live · C leads</div></div>
+          </div>
+          <div class="srow" data-row>
+            <div class="vs"><div class="shield xs s-b">B</div><em>vs</em><div class="shield xs s-c">C</div></div>
+            <div class="games"><div class="gslot fb" data-g>B<small>Game 1</small></div><div class="gslot" data-g id="nextSlot">Game 2</div><div class="gslot" data-g>Game 3?</div></div>
+            <div class="sstat"><div class="score"><span class="tb">1</span>–<span class="tc">0</span></div><div class="pill next" data-pill>Next up · B leads</div></div>
+            <div class="glow" id="nextGlow"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Standings -->
+      <section class="scene" id="table">
+        <div class="scene-head"><div class="eyebrow" data-in>Step 3</div><div class="h1" data-in>Standings right now</div></div>
+        <div class="grid">
+          <div class="trow head"><span>#</span><span>Team</span><span>Games W–L</span><span>Points</span><span style="text-align:right">Pts</span><span style="text-align:right">Max possible</span></div>
+          <div class="trow" data-trow>
+            <div class="rank">1</div><div class="name"><div class="shield xs s-b">B</div><span class="tb">Team B</span></div><div class="rec">3–0</div>
+            <div class="bar tb"><u data-max style="width:100%"></u><i data-pts style="width:50%;background:var(--team-b)"></i></div>
+            <div class="num tb" data-count="3">3</div><div class="max" data-maxn>6</div>
+          </div>
+          <div class="trow" data-trow>
+            <div class="rank">2</div><div class="name"><div class="shield xs s-c">C</div><span class="tc">Team C</span></div><div class="rec">1–1</div>
+            <div class="bar tc"><u data-max style="width:83.3%"></u><i data-pts style="width:0%;background:var(--team-c)"></i></div>
+            <div class="num tc" data-count="0">0</div><div class="max" data-maxn>5</div>
+          </div>
+          <div class="trow" data-trow id="rowA">
+            <div class="rank">3</div><div class="name"><div class="shield xs s-a">A</div><span class="ta">Team A</span></div><div class="rec">0–3</div>
+            <div class="bar ta"><u data-max style="width:33.3%"></u><i data-pts style="width:0%;background:var(--team-a)"></i></div>
+            <div class="num ta" data-count="0">0</div><div class="max" data-maxn>2</div>
+            <div class="stamp" id="stampA">Out of title race</div>
+          </div>
+        </div>
+        <div class="foot" data-in id="tableFoot">Team A can reach 2 points at most, and B already has 3. <b style="color:var(--text)">The title is now between B and C.</b></div>
+      </section>
+
+      <!-- 5. Next match -->
+      <section class="scene" id="next">
+        <div class="center">
+          <div class="eyebrow" data-in>Step 4 · The next game</div>
+          <div class="face">
+            <div class="shield s-b" data-face>B</div>
+            <div class="vsx" data-in>vs</div>
+            <div class="shield s-c" data-face>C</div>
+          </div>
+          <div class="gameno" data-in>Game 2 <span style="color:var(--muted)">· B leads 1–0</span></div>
+        </div>
+        <div class="split">
+          <div class="if b" data-if><h3 class="tb">If B wins</h3><p>B takes the series 2–0 and reaches <b>6 points</b>. No one else can get past 3. <b>B is champion.</b></p></div>
+          <div class="if c" data-if><h3 class="tc">If C wins</h3><p>The series is tied 1–1. <b>Game 3</b> decides it, and the race stays open.</p></div>
+        </div>
+      </section>
+
+      <!-- 6. Tree -->
+      <section class="scene" id="tree">
+        <div class="scene-head">
+          <div class="eyebrow" data-in>Step 5</div>
+          <div class="h1" data-in>Every path to the title</div>
+          <div class="caps">
+            <div class="cap" data-cap="0">Game 2 of <b>B vs C</b> comes first. Everything branches from it.</div>
+            <div class="cap" data-cap="1"><b class="tb">B wins Game 2:</b> B has 6 points. C can reach 3 at most. B is champion.</div>
+            <div class="cap" data-cap="2"><b class="tc">C wins Game 2:</b> the series goes to Game 3.</div>
+            <div class="cap" data-cap="3"><b class="tb">B wins Game 3:</b> B has 5, C can reach only 4. B is still champion.</div>
+            <div class="cap" data-cap="4"><b class="tc">C wins Game 3:</b> B stops at 4, C has 2. Now <b>A vs C</b> decides it.</div>
+            <div class="cap" data-cap="5">C needs a <b>2–0 over A</b> to win outright. 2–1 ties B. If <b class="ta">A</b> wins, <b class="tb">B</b> is champion.</div>
+          </div>
+        </div>
+        <svg id="wires" viewBox="0 0 1920 1080"></svg>
+        <div id="nodes"></div>
+      </section>
+
+      <!-- 7. Grid -->
+      <section class="scene" id="grid">
+        <div class="scene-head"><div class="eyebrow" data-in>Step 6</div><div class="h1" data-in>All 9 possible endings</div></div>
+        <div class="board" id="board"></div>
+        <div class="tally">
+          <div class="tl" data-tally><b class="tb" data-count="7">7</b><span>endings where B is champion</span></div>
+          <div class="tl" data-tally><b class="tc" data-count="1">1</b><span>ending where C is champion</span></div>
+          <div class="tl" data-tally><b class="tt" data-count="1">1</b><span>ending with B and C tied on 4</span></div>
+          <div class="tl" data-tally><b class="ta">0</b><span>endings where A is champion</span></div>
+        </div>
+        <div class="foot" data-in>Rows: how B vs C finishes. Columns: how A vs C finishes. These are the possible outcomes, not odds.</div>
+      </section>
+
+      <!-- 8. Outro -->
+      <section class="scene" id="outro">
+        <div class="scene-head"><div class="eyebrow" data-in>What each team needs</div><div class="h1" data-in>The road from here</div></div>
+        <div class="cards">
+          <div class="take" data-take style="--c:var(--team-b)">
+            <div class="tt2"><div class="shield sm s-b">B</div><span class="tb">Team B</span></div>
+            <p><b>Win one more game against C</b> and the title is locked. Even losing to C 2–1, B is champion unless C also sweeps A or ties B.</p>
+            <div class="odds">Champion in 7 of 9 endings</div>
+          </div>
+          <div class="take" data-take style="--c:var(--team-c)">
+            <div class="tt2"><div class="shield sm s-c">C</div><span class="tc">Team C</span></div>
+            <p>Must <b>beat B in Games 2 and 3</b>, then <b>beat A 2–0</b> for a clear title. Beating A 2–1 ties B on 4 points.</p>
+            <div class="odds">Champion in 1, tied in 1</div>
+          </div>
+          <div class="take" data-take style="--c:var(--team-a)">
+            <div class="tt2"><div class="shield sm s-a">A</div><span class="ta">Team A</span></div>
+            <p>Cannot win the title, with 2 points at most. But A is the <b>kingmaker</b>: winning any game against C hurts C's only path.</p>
+            <div class="odds">Playing for pride and spoiler</div>
+          </div>
+        </div>
+        <div class="foot" data-in><b>If B and C tie on 4:</b> the winner depends on the tournament's tiebreak rule. Head-to-head favours C (C beat B 2–1), and so does game difference (C +2, B +1). Check the official rulebook.</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <div class="scrub-row"><input id="scrub" type="range" min="0" max="100" step="0.01" value="0" aria-label="Timeline position"><span class="time" id="time">0:00 / 0:00</span></div>
+  </div>
+  <div class="chapters" id="chapters"></div>
+  <p class="note">Scrub the timeline or jump to a chapter. Space bar plays and pauses.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function () {
+  const RENDER = /[?&]render\b/.test(location.search);
+  if (RENDER) document.body.classList.add('render');
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const stage = $('#stage'), wrap = $('#wrap');
+
+  function fit() { if (RENDER) return; stage.style.transform = 'scale(' + (wrap.clientWidth / 1920) + ')'; }
+  new ResizeObserver(fit).observe(wrap); fit();
+
+  /* ---------- Tree data ---------- */
+  const W = 300, H = 110;
+  const nodes = {
+    root: { x: 60,   y: 505, w: 280, h: 130, k: 'Next: B vs C', v: 'Game 2 · B leads 1–0', e: 'n' },
+    n1:   { x: 420,  y: 275, k: 'B wins Game 2', v: 'B takes series 2–0', e: 'b' },
+    n2:   { x: 420,  y: 715, k: 'C wins Game 2', v: 'Series 1–1 · Game 3', e: 'c' },
+    n3:   { x: 790,  y: 275, k: 'B: 6 pts', v: 'C max 3 · A max 2', e: 'b' },
+    n4:   { x: 790,  y: 565, k: 'B wins Game 3', v: 'B 2–1 · B 5, C 1', e: 'b' },
+    n5:   { x: 790,  y: 865, k: 'C wins Game 3', v: 'C 2–1 · B 4, C 2', e: 'c' },
+    n6:   { x: 1160, y: 565, k: 'C max 4 < 5', v: 'A vs C can’t change it', e: 'n' },
+    n7:   { x: 1160, y: 865, k: 'A vs C decides', v: 'C leads that series 1–0', e: 'a' }
+  };
+  const LW = 350, LH = 90;
+  const leaves = {
+    L1: { x: 1530, y: 285, cls: 'lb', k: 'B champion', v: 'Any A vs C result' },
+    L2: { x: 1530, y: 575, cls: 'lb', k: 'B champion', v: 'Any A vs C result' },
+    L3: { x: 1530, y: 768, cls: 'lc', k: 'C champion', v: 'C beats A 2–0 · C 5, B 4' },
+    L4: { x: 1530, y: 870, cls: 'lt', k: 'Tie on 4', v: 'C beats A 2–1 · tiebreak' },
+    L5: { x: 1530, y: 972, cls: 'lb', k: 'B champion', v: 'A beats C 2–1 · B 4, C 3' }
+  };
+  const edges = [
+    ['root','n1','b'], ['n1','n3','b'], ['n3','L1','b'],
+    ['root','n2','c'],
+    ['n2','n4','b'], ['n4','n6','b'], ['n6','L2','b'],
+    ['n2','n5','c'], ['n5','n7','c'], ['n7','L3','c'], ['n7','L4','t'], ['n7','L5','a']
+  ];
+  const crown = '<svg class="crown" viewBox="0 0 52 40" aria-hidden="true"><path d="M3 34 L7 8 L18 20 L26 3 L34 20 L45 8 L49 34 Z" fill="#0a0f1e"/><rect x="3" y="35" width="46" height="5" rx="2" fill="#0a0f1e"/></svg>';
+  const tieIcon = '<svg class="crown" viewBox="0 0 52 40" aria-hidden="true"><rect x="6" y="12" width="40" height="6" rx="3" fill="#0a0f1e"/><rect x="6" y="24" width="40" height="6" rx="3" fill="#0a0f1e"/></svg>';
+  const nodesEl = $('#nodes');
+  const box = id => { const n = nodes[id] || leaves[id]; const leaf = !!leaves[id]; return { x: n.x, y: n.y, w: leaf ? LW : (n.w || W), h: leaf ? LH : (n.h || H) }; };
+  for (const [id, n] of Object.entries(nodes)) {
+    const d = document.createElement('div'); d.className = 'node edge-' + n.e; d.id = 'tn-' + id;
+    const b = box(id); Object.assign(d.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' });
+    d.innerHTML = '<div class="k">' + n.k + '</div><div class="v">' + n.v + '</div>'; nodesEl.appendChild(d);
+  }
+  for (const [id, n] of Object.entries(leaves)) {
+    const d = document.createElement('div'); d.className = 'leaf ' + n.cls; d.id = 'tn-' + id;
+    Object.assign(d.style, { left: n.x + 'px', top: n.y + 'px', width: LW + 'px', height: LH + 'px' });
+    d.innerHTML = (n.cls === 'lt' ? tieIcon : crown) + '<div><div class="k">' + n.k + '</div><div class="v">' + n.v + '</div></div>'; nodesEl.appendChild(d);
+  }
+  const colors = { a: 'var(--team-a)', b: 'var(--team-b)', c: 'var(--team-c)', t: 'var(--tie)' };
+  const svg = $('#wires');
+  for (const [f, t, c] of edges) {
+    const a = box(f), b = box(t);
+    const x1 = a.x + a.w, y1 = a.y + a.h / 2, x2 = b.x, y2 = b.y + b.h / 2, mx = (x1 + x2) / 2;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', 'M' + x1 + ' ' + y1 + ' C' + mx + ' ' + y1 + ' ' + mx + ' ' + y2 + ' ' + x2 + ' ' + y2);
+    p.setAttribute('stroke', colors[c]); p.id = 'w-' + f + '-' + t; svg.appendChild(p);
+    const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+  }
+
+  /* ---------- Grid data ---------- */
+  const rowsH = [['B wins 2–0', 'B 3 · C 0'], ['B wins 2–1', 'B 2 · C 1'], ['C wins 2–1', 'C 2 · B 1']];
+  const colsH = [['C wins 2–0', 'C 3 · A 0'], ['C wins 2–1', 'C 2 · A 1'], ['A wins 2–1', 'A 2 · C 1']];
+  const bc = [[3,0],[2,1],[1,2]];   // [B pts, C pts] from B vs C
+  const ac = [[0,3],[1,2],[2,1]];   // [A pts, C pts] from A vs C
+  const board = $('#board');
+  board.insertAdjacentHTML('beforeend', '<div class="gh" style="justify-content:flex-end">B vs C ↓ &nbsp;/&nbsp; A vs C →</div>');
+  colsH.forEach(c => board.insertAdjacentHTML('beforeend', '<div class="gh col" data-gh><b>' + c[0] + '</b>' + c[1] + '</div>'));
+  for (let r = 0; r < 3; r++) {
+    board.insertAdjacentHTML('beforeend', '<div class="gh" data-gh><b>' + rowsH[r][0] + '</b>' + rowsH[r][1] + '</div>');
+    for (let c = 0; c < 3; c++) {
+      const pts = { A: ac[c][0], B: 3 + bc[r][0], C: bc[r][1] + ac[c][1] };
+      const order = Object.entries(pts).sort((x, y) => y[1] - x[1]);
+      let who, cls;
+      if (order[0][1] === order[1][1]) { who = 'Tie · ' + order[0][0] + ' & ' + order[1][0]; cls = 'ct'; }
+      else { who = order[0][0] + ' champion'; cls = order[0][0] === 'B' ? 'cb' : 'cc'; }
+      const line = order.map(([t, p]) => '<span class="t' + t.toLowerCase() + '">' + t + ' ' + p + '</span>').join('');
+      board.insertAdjacentHTML('beforeend', '<div class="cell ' + cls + '" data-cell><div class="who">' + who + '</div><div class="line">' + line + '</div></div>');
+    }
+  }
+
+  /* ---------- Timeline ---------- */
+  const tl = gsap.timeline({ paused: true });
+  const scenes = ['intro','rules','series','table','next','tree','grid','outro'];
+  const names = { intro: 'Intro', rules: 'Points', series: 'Series', table: 'Standings', next: 'Next game', tree: 'Paths', grid: 'All endings', outro: 'Summary' };
+  const ease = 'power3.out';
+  function enter(id, at) { tl.addLabel(id, at); tl.set('#' + id, { visibility: 'visible' }, at); tl.fromTo('#' + id, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, at); }
+  function leave(id, at) { tl.to('#' + id, { autoAlpha: 0, duration: .5, ease: 'power2.in' }, at); }
+  function ins(id, at, stagger = .14) { tl.from($$('#' + id + ' [data-in]'), { y: 50, autoAlpha: 0, duration: .8, ease, stagger }, at); }
+
+  // ambient
+  const T = { intro: 0, rules: 7, series: 15.5, table: 27, next: 37, tree: 46, grid: 72, outro: 85, end: 99 };
+  tl.fromTo('#stripes', { x: 0 }, { x: -320, duration: T.end, ease: 'none' }, 0);
+  tl.fromTo('#slashB', { x: -900 }, { x: 0, duration: 1.2, ease: 'expo.out' }, .2);
+  tl.fromTo('#slashC', { x: -1100 }, { x: 0, duration: 1.4, ease: 'expo.out' }, .35);
+
+  // 1 intro
+  enter('intro', T.intro);
+  ins('intro', .3, .18);
+  tl.from('#intro [data-team]', { y: 120, autoAlpha: 0, rotate: -8, duration: 1, ease: 'back.out(1.6)', stagger: .2 }, 1.1);
+  tl.to('#intro [data-team] .shield', { y: -14, duration: .6, yoyo: true, repeat: 3, ease: 'sine.inOut', stagger: .2 }, 3);
+  leave('intro', T.rules - .5);
+
+  // 2 rules
+  enter('rules', T.rules); ins('rules', T.rules + .1);
+  tl.from('#rules [data-card]', { y: 80, autoAlpha: 0, duration: .8, ease, stagger: .25 }, T.rules + .5);
+  tl.from('#rules [data-dot]', { scale: 0, duration: .45, ease: 'back.out(2.5)', stagger: .18 }, T.rules + 1.4);
+  tl.from('#rules .pt b', { y: 30, autoAlpha: 0, duration: .5, ease, stagger: .2 }, T.rules + 2.8);
+  tl.from('#rules .foot', { autoAlpha: 0, y: 30, duration: .6, ease }, T.rules + 4.6);
+  leave('rules', T.series - .5);
+
+  // 3 series
+  enter('series', T.series); ins('series', T.series + .1);
+  tl.from('#series [data-row]', { x: -140, autoAlpha: 0, duration: .8, ease, stagger: 1.6 }, T.series + .6);
+  $$('#series [data-row]').forEach((row, i) => {
+    const at = T.series + 1.1 + i * 1.6;
+    tl.from(row.querySelectorAll('[data-g]'), { scale: .4, autoAlpha: 0, duration: .45, ease: 'back.out(2)', stagger: .15 }, at);
+    tl.from(row.querySelector('[data-pill]'), { x: 40, autoAlpha: 0, duration: .5, ease }, at + .6);
+  });
+  tl.fromTo('#nextGlow', { autoAlpha: 0 }, { autoAlpha: 1, duration: .4, yoyo: true, repeat: 5, ease: 'sine.inOut' }, T.series + 6.4);
+  tl.fromTo('#nextSlot', { borderColor: '#2b3762' }, { borderColor: '#f5b43d', color: '#f5b43d', duration: .4, yoyo: true, repeat: 5 }, T.series + 6.4);
+  leave('series', T.table - .5);
+
+  // 4 standings
+  enter('table', T.table); ins('table', T.table + .1);
+  tl.from('#table .trow.head', { autoAlpha: 0, duration: .5 }, T.table + .5);
+  tl.from('#table [data-trow]', { y: 50, autoAlpha: 0, duration: .7, ease, stagger: .25 }, T.table + .7);
+  tl.from('#table [data-pts]', { width: 0, duration: 1.2, ease: 'power2.out', stagger: .25 }, T.table + 1.6);
+  $$('#table [data-count]').forEach((el, i) => {
+    const o = { v: 0 }, end = +el.dataset.count;
+    tl.to(o, { v: end, duration: 1.2, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v); } }, T.table + 1.6 + i * .25);
+  });
+  tl.from('#table [data-max]', { width: 0, duration: 1, ease: 'power2.out', stagger: .2 }, T.table + 3.4);
+  tl.from('#table [data-maxn]', { autoAlpha: 0, x: 30, duration: .5, stagger: .2 }, T.table + 3.4);
+  tl.fromTo('#stampA', { scale: 2.4, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: .45, ease: 'back.out(1.4)' }, T.table + 5.4);
+  tl.to('#rowA', { opacity: .7, duration: .4 }, T.table + 5.6);
+  tl.from('#tableFoot', { autoAlpha: 0, y: 30, duration: .6, ease }, T.table + 6.2);
+  leave('table', T.next - .5);
+
+  // 5 next match
+  enter('next', T.next); ins('next', T.next + .1, .2);
+  tl.from('#next [data-face]', { scale: .2, autoAlpha: 0, duration: .9, ease: 'back.out(1.7)', stagger: .2 }, T.next + .3);
+  tl.from('#next [data-if]', { y: 80, autoAlpha: 0, duration: .8, ease, stagger: 1.6 }, T.next + 2.2);
+  leave('next', T.tree - .5);
+
+  // 6 tree
+  enter('tree', T.tree); ins('tree', T.tree + .1);
+  const showCap = (i, at) => {
+    if (i > 0) tl.to('#tree [data-cap="' + (i - 1) + '"]', { autoAlpha: 0, y: -16, duration: .35 }, at);
+    tl.fromTo('#tree [data-cap="' + i + '"]', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: .45, ease }, at + .2);
+  };
+  $$('#tree [data-cap]').forEach(c => gsap.set(c, { autoAlpha: 0 }));
+  const pop = (id, at) => tl.from('#tn-' + id, { scale: .6, autoAlpha: 0, duration: .55, ease: 'back.out(1.8)' }, at);
+  const wire = (f, t, at) => tl.to('#w-' + f + '-' + t, { strokeDashoffset: 0, duration: .6, ease: 'power2.inOut' }, at);
+  let t = T.tree + .6;
+  showCap(0, t); pop('root', t + .3);
+  t += 3;   showCap(1, t); wire('root','n1', t); pop('n1', t + .5); wire('n1','n3', t + 1.1); pop('n3', t + 1.6); wire('n3','L1', t + 2.2); pop('L1', t + 2.7);
+  t += 4.8; showCap(2, t); wire('root','n2', t); pop('n2', t + .5);
+  t += 2.8; showCap(3, t); wire('n2','n4', t); pop('n4', t + .5); wire('n4','n6', t + 1.1); pop('n6', t + 1.6); wire('n6','L2', t + 2.2); pop('L2', t + 2.7);
+  t += 4.8; showCap(4, t); wire('n2','n5', t); pop('n5', t + .5); wire('n5','n7', t + 1.1); pop('n7', t + 1.6);
+  t += 3.6; showCap(5, t); wire('n7','L3', t); pop('L3', t + .5); wire('n7','L4', t + 1.1); pop('L4', t + 1.6); wire('n7','L5', t + 2.2); pop('L5', t + 2.7);
+  leave('tree', T.grid - .5);
+
+  // 7 grid
+  enter('grid', T.grid); ins('grid', T.grid + .1);
+  tl.from('#grid [data-gh]', { autoAlpha: 0, x: -20, duration: .4, stagger: .1 }, T.grid + .5);
+  tl.from('#grid [data-cell]', { scale: .7, autoAlpha: 0, duration: .45, ease: 'back.out(1.8)', stagger: .32 }, T.grid + 1.2);
+  tl.from('#grid [data-tally]', { x: 60, autoAlpha: 0, duration: .6, ease, stagger: .3 }, T.grid + 4.6);
+  $$('#grid [data-count]').forEach((el, i) => {
+    const o = { v: 0 }, end = +el.dataset.count;
+    tl.to(o, { v: end, duration: 1, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v); } }, T.grid + 4.6 + i * .3);
+  });
+  tl.from('#grid .foot', { autoAlpha: 0, y: 20, duration: .6 }, T.grid + 6);
+  leave('grid', T.outro - .5);
+
+  // 8 outro
+  enter('outro', T.outro); ins('outro', T.outro + .1);
+  tl.from('#outro [data-take]', { y: 90, autoAlpha: 0, duration: .8, ease, stagger: 1.2 }, T.outro + .6);
+  tl.from('#outro .foot', { autoAlpha: 0, y: 20, duration: .6 }, T.outro + 5.2);
+  tl.to({}, { duration: .01 }, T.end);
+
+  /* ---------- Player ---------- */
+  const total = tl.duration();
+  window.__duration = total;
+  window.__seek = s => { tl.pause(); tl.seek(s, false); };
+  if (RENDER) { tl.seek(0); return; }
+
+  const play = $('#play'), scrub = $('#scrub'), time = $('#time'), chapters = $('#chapters');
+  scrub.max = total;
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  scenes.forEach(id => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = names[id]; b.dataset.id = id;
+    b.addEventListener('click', () => { tl.seek(T[id]).play(); });
+    chapters.appendChild(b);
+  });
+  const chips = $$('.chip', chapters);
+  function sync() {
+    const now = tl.time();
+    scrub.value = now; time.textContent = fmt(now) + ' / ' + fmt(total);
+    play.textContent = tl.paused() || tl.progress() === 1 ? 'Play' : 'Pause';
+    let cur = scenes[0]; scenes.forEach(id => { if (now >= T[id]) cur = id; });
+    chips.forEach(c => c.classList.toggle('on', c.dataset.id === cur));
+  }
+  tl.eventCallback('onUpdate', sync);
+  tl.eventCallback('onComplete', sync);
+  play.addEventListener('click', () => { if (tl.progress() === 1) tl.restart(); else tl.paused(!tl.paused()); sync(); });
+  $('#restart').addEventListener('click', () => { tl.restart(); sync(); });
+  scrub.addEventListener('input', () => { tl.pause(); tl.seek(+scrub.value); sync(); });
+  document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); play.click(); } });
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { tl.seek(T.grid + 8); sync(); }
+  else { (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { tl.play(0); sync(); }); }
+  sync();
+})();
+</script>
