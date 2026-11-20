@@ -12,11 +12,11 @@ import soundfile as sf
 from kokoro_onnx import Kokoro
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MIX = [("am_liam", 0.6), ("af_sky", 0.4)]
-SPEED = 1.08
-GAP, SCENE_IN, SCENE_OUT = 0.14, 0.35, 0.55
-# Raises pitch 1.33x keeping resonance, then 1.18x pitch + resonance together: ~220 Hz, a boy's range.
-VOICE_FILTER = "rubberband=pitch=1.33:formant=preserved:pitchq=quality,asetrate=24000*1.18,aresample=24000,atempo=1/1.18"
+MIX = [("am_liam", 0.5), ("af_sky", 0.5)]
+SPEED = 1.1
+GAP, SCENE_IN, SCENE_OUT = 0.26, 0.3, 0.6
+# Raises pitch 1.42x keeping resonance, then 1.22x pitch + resonance together: ~265 Hz, a young boy's range.
+VOICE_FILTER = "rubberband=pitch=1.42:formant=preserved:pitchq=quality,asetrate=24000*1.22,aresample=24000,atempo=1/1.22"
 
 
 def trim(a, sr, thr=0.012):

@@ -2,115 +2,115 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Barlow:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&display=swap">
 <style>
-/* Layout: a 1080x1920 vertical reel stage (phone-first), scaled to fit, with a play/scrub bar under it. One dark broadcast look on purpose. */
+/* Layout: 1080x1920 vertical reel. A laptop in a dark room shows each idea on its screen (big type), with a desk reflection and a typed caption beneath. Single dark room look on purpose; the screen itself switches light / dark / orange. */
 :root {
-  --ink: #090d1b;
-  --panel: #151d38;
-  --line: #2c3866;
-  --text: #f3f5fc;
-  --muted: #9aa6c9;
-  --team-a: #3fd0e0;
-  --team-b: #ffbe3d;
-  --team-c: #ff4f7b;
-  --tie: #c2a8ff;
-  --display: "Saira Condensed", "Arial Narrow", sans-serif;
-  --body: "Barlow", "Inter", Arial, sans-serif;
+  --room: #060709;
+  --line: #2a2c33;
+  --text: #f4f4f2;
+  --muted: #8b8e98;
+  --a: #3fd0e0;
+  --b: #ffbe3d;
+  --c: #ff4f7b;
+  --tie: #b89cff;
+  --orange: #ef6f43;
+  --heavy: "Archivo", "Arial Black", sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html, body { background: var(--ink); color: var(--text); }
-body { font-family: var(--body); padding-block: 16px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-
+html, body { background: var(--room); color: var(--text); }
+body { font-family: var(--mono); padding-block: 16px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .player { width: min(100%, calc((100vh - 150px) * 9 / 16)); min-width: min(100%, 300px); margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-.stage-wrap { position: relative; width: 100%; aspect-ratio: 9 / 16; max-width: 100%; overflow: hidden; border-radius: 14px; background: var(--ink); border: 1px solid var(--line); }
-.stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; background: var(--ink); --g: #ffbe3d; }
-.cover { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(9, 13, 27, .45); border: 0; cursor: pointer; z-index: 20; }
-.cover span { font: 800 20px/1 var(--body); color: var(--ink); background: var(--team-b); padding: 16px 24px; border-radius: 999px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+.stage-wrap { position: relative; width: 100%; aspect-ratio: 9 / 16; max-width: 100%; overflow: hidden; border-radius: 14px; background: var(--room); border: 1px solid var(--line); }
+.stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; background: radial-gradient(1100px 900px at 50% 38%, #15171d 0%, var(--room) 70%); --glow: #f1f0ec; }
+.cover { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(6, 7, 9, .4); border: 0; cursor: pointer; z-index: 20; }
+.cover span { font: 800 18px/1 var(--mono); color: #111; background: var(--orange); padding: 16px 22px; border-radius: 999px; }
 .cover:focus-visible span { outline: 3px solid var(--text); outline-offset: 3px; }
 .controls { display: flex; align-items: center; gap: 10px; }
-.btn { font: 700 15px/1 var(--body); color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; cursor: pointer; }
-.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--team-b); outline-offset: 2px; }
-#scrub { flex: 1; min-width: 0; accent-color: var(--team-b); }
-.time { font: 600 13px/1 var(--body); font-variant-numeric: tabular-nums; color: var(--muted); }
-
+.btn { font: 700 14px/1 var(--mono); color: var(--text); background: #14161b; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+#scrub { flex: 1; min-width: 0; accent-color: var(--orange); }
+.time { font: 500 13px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); }
 body.render { padding: 0; }
 body.render .player { width: 1080px; min-width: 0; gap: 0; }
 body.render .stage-wrap { width: 1080px; height: 1920px; aspect-ratio: auto; border: 0; border-radius: 0; }
 body.render .controls, body.render .cover { display: none; }
 
-/* ---------- stage furniture ---------- */
-.glow { position: absolute; inset: 0; background: radial-gradient(900px 900px at 50% 46%, color-mix(in srgb, var(--g) 26%, transparent) 0%, transparent 62%), radial-gradient(700px 500px at 50% 100%, #1d2147 0%, transparent 70%); }
-.stripes { position: absolute; inset: -400px; background: repeating-linear-gradient(-60deg, rgba(255,255,255,.03) 0 3px, transparent 3px 60px); }
-.tags { position: absolute; top: 120px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 6; }
-.tag { background: #fff; color: #0b0f1d; font: 800 54px/1 var(--body); padding: 14px 26px 16px; border-radius: 12px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-.tag.sm { font-size: 40px; padding: 10px 22px 12px; }
-.tag svg { width: 50px; height: 40px; }
-.scene { position: absolute; left: 50px; right: 50px; top: 360px; height: 1020px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; text-align: center; visibility: hidden; }
-.row { display: flex; align-items: center; justify-content: center; gap: 36px; }
-.mega { font: 900 280px/.9 var(--display); letter-spacing: -.01em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.huge { font: 900 170px/.92 var(--display); text-transform: uppercase; }
-.big  { font: 800 120px/.95 var(--display); text-transform: uppercase; }
-.mid  { font: 800 88px/1 var(--display); text-transform: uppercase; }
-.lab  { font: 800 60px/1 var(--display); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.ta { color: var(--team-a); } .tb { color: var(--team-b); } .tc { color: var(--team-c); } .tt { color: var(--tie); } .tm { color: var(--muted); }
-.pill { font: 800 64px/1 var(--display); text-transform: uppercase; letter-spacing: .08em; padding: 16px 30px; border-radius: 14px; }
-.pill.live { border: 6px solid var(--team-c); color: var(--team-c); }
-.pill.blive { border: 6px solid var(--team-b); color: var(--team-b); }
-.stamp { font: 900 120px/1 var(--display); text-transform: uppercase; letter-spacing: .1em; color: var(--team-c); border: 10px solid var(--team-c); border-radius: 18px; padding: 6px 34px 10px; transform: rotate(-7deg); background: rgba(9,13,27,.8); }
-.stamp.final { color: var(--text); border-color: var(--text); }
+/* ---------- room ---------- */
+.head { position: absolute; top: 150px; left: 0; right: 0; text-align: center; display: flex; flex-direction: column; gap: 14px; z-index: 5; }
+.head b { font: 800 46px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.head span { font: 500 32px/1 var(--mono); color: var(--muted); }
+.desk { position: absolute; left: 0; right: 0; top: 1000px; bottom: 0; background: linear-gradient(#0d0e12, #050608 60%); }
+.spill { position: absolute; left: 90px; right: 90px; top: 960px; height: 420px; background: radial-gradient(50% 45% at 50% 18%, color-mix(in srgb, var(--glow) 22%, transparent), transparent 75%); filter: blur(20px); }
+.rig { position: absolute; left: 0; right: 0; top: 345px; display: flex; justify-content: center; perspective: 2200px; z-index: 3; }
+.laptop { display: flex; flex-direction: column; align-items: center; transform-origin: 50% 100%; -webkit-box-reflect: below 2px linear-gradient(transparent 52%, rgba(255,255,255,.22)); }
+.lid { width: 1004px; height: 644px; padding: 22px; border-radius: 30px 30px 8px 8px; background: #0a0a0b; border: 3px solid #2b2c31; box-shadow: 0 0 140px -20px color-mix(in srgb, var(--glow) 40%, transparent); }
+.screen { position: relative; width: 954px; height: 594px; border-radius: 10px; overflow: hidden; background: #111; }
+.base { width: 1076px; height: 30px; background: linear-gradient(#cfd0d4, #8d8f96 60%, #4a4b50); clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%); border-radius: 0 0 14px 14px; position: relative; }
+.base::after { content: ""; position: absolute; left: 44%; right: 44%; top: 0; height: 9px; background: #6e7076; border-radius: 0 0 8px 8px; }
 
-.shield { clip-path: polygon(50% 0, 100% 22%, 100% 70%, 50% 100%, 0 70%, 0 22%); display: grid; place-items: center; font-family: var(--display); font-weight: 900; color: var(--ink); flex: none; }
-.shield.L { width: 300px; height: 340px; font-size: 210px; }
-.shield.M { width: 220px; height: 250px; font-size: 156px; }
-.shield.S { width: 150px; height: 170px; font-size: 106px; }
-.shield.XS { width: 104px; height: 118px; font-size: 74px; }
-.s-a { background: linear-gradient(160deg, #a2f0f7, var(--team-a) 55%, #1d8d9b); }
-.s-b { background: linear-gradient(160deg, #ffe6a8, var(--team-b) 55%, #bd7c0e); }
-.s-c { background: linear-gradient(160deg, #ffadc2, var(--team-c) 55%, #a8204a); }
-.vs { font: 900 110px/1 var(--display); color: var(--muted); }
-.slots { display: flex; gap: 22px; }
-.slot { width: 200px; height: 120px; border-radius: 16px; border: 5px dashed var(--line); display: grid; place-items: center; font: 800 54px/1 var(--display); color: var(--muted); }
-.slot.fa { background: var(--team-a); border: 0; color: var(--ink); }
-.slot.fb { background: var(--team-b); border: 0; color: var(--ink); }
-.slot.fc { background: var(--team-c); border: 0; color: var(--ink); }
+/* ---------- screen scenes ---------- */
+.scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; padding: 30px; visibility: hidden; background: var(--bg); color: var(--fg); }
+.t-L { --bg: #f1f0ec; --fg: #121316; --mut: #6b6d75; --ta: #0a98ab; --tb: #cf8300; --tc: #dc2f5a; --tt: #6e4ff0; --acc: #e5602f; }
+.t-D { --bg: #111216; --fg: #f4f4f2; --mut: #8b8e98; --ta: #3fd0e0; --tb: #ffbe3d; --tc: #ff4f7b; --tt: #c2a8ff; --acc: #ff7a4d; }
+.t-O { --bg: #ef6f43; --fg: #141210; --mut: #5e2611; --ta: #053f47; --tb: #fff4d0; --tc: #5c0620; --tt: #24125e; --acc: #141210; }
+.ta { color: var(--ta); } .tb { color: var(--tb); } .tc { color: var(--tc); } .tt { color: var(--tt); } .tm { color: var(--mut); } .acc { color: var(--acc); }
+.mega { font: 900 200px/.86 var(--heavy); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.big  { font: 900 104px/.95 var(--heavy); letter-spacing: -.02em; }
+.mid  { font: 900 70px/1 var(--heavy); letter-spacing: -.01em; }
+.ser  { font: italic 400 96px/1 var(--serif); }
+.ser.s { font-size: 74px; }
+.lab  { font: 700 34px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mut); }
+.row { display: flex; align-items: center; justify-content: center; gap: 30px; }
+.tile { border-radius: 28px; display: grid; place-items: center; font-family: var(--heavy); font-weight: 900; color: #111; flex: none; box-shadow: inset 0 -8px 0 rgba(0,0,0,.18); }
+.tile.L { width: 180px; height: 180px; font-size: 128px; }
+.tile.M { width: 140px; height: 140px; font-size: 100px; border-radius: 24px; }
+.tile.S { width: 100px; height: 100px; font-size: 70px; border-radius: 18px; }
+.tile.XS { width: 76px; height: 76px; font-size: 54px; border-radius: 14px; }
+.k-a { background: var(--a); } .k-b { background: var(--b); } .k-c { background: var(--c); }
+.t-O .tile { outline: 5px solid #141210; }
+.vs { font: italic 400 80px/1 var(--serif); color: var(--mut); }
+.slots { display: flex; gap: 18px; }
+.slot { width: 150px; height: 84px; border-radius: 14px; border: 4px dashed var(--mut); display: grid; place-items: center; font: 800 40px/1 var(--mono); color: var(--mut); }
+.slot.f { border: 0; color: #111; }
+.pill { font: 800 40px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; padding: 14px 24px; border-radius: 12px; border: 4px solid currentColor; }
+.stamp { font: 900 92px/1 var(--heavy); text-transform: uppercase; color: var(--fg); border: 9px solid var(--fg); border-radius: 16px; padding: 4px 28px 10px; transform: rotate(-6deg); }
+.trow { width: 760px; display: grid; grid-template-columns: 100px 1fr 140px; align-items: center; gap: 30px; text-align: left; }
+.trow .nm { font: 900 76px/1 var(--heavy); }
+.trow .n { font: 900 110px/1 var(--heavy); text-align: right; font-variant-numeric: tabular-nums; }
+.need { width: 820px; display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 30px; text-align: left; }
+.champ { display: flex; align-items: center; gap: 26px; }
+.champ svg { width: 140px; height: 108px; }
+.stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stat b { font: 900 170px/.9 var(--heavy); }
+.dots i { display: inline-block; width: 18px; height: 18px; margin-left: 10px; border-radius: 50%; background: var(--mut); }
+.mag { position: absolute; width: 240px; height: 240px; left: 140px; top: 130px; }
+#fx { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+#fx b { position: absolute; left: 477px; top: 300px; width: 16px; height: 26px; border-radius: 3px; }
 
-.trow { width: 940px; display: grid; grid-template-columns: 150px 1fr 200px; align-items: center; gap: 30px; padding: 22px 40px; background: var(--panel); border: 3px solid var(--line); border-radius: 22px; }
-.trow .n { font: 900 150px/1 var(--display); text-align: right; font-variant-numeric: tabular-nums; }
-.trow .nm { font: 800 96px/1 var(--display); text-transform: uppercase; text-align: left; }
-.trow.dim { opacity: .55; }
-.champ { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.champ svg { width: 300px; height: 220px; filter: drop-shadow(0 0 40px var(--cc)); }
-.champ .huge { color: var(--cc); }
-.need { width: 960px; display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 34px; text-align: left; padding: 28px 36px; border-radius: 24px; background: var(--panel); border: 4px solid var(--cc); }
-.need .mid { line-height: 1.02; }
-
-.caption { position: absolute; left: 60px; right: 60px; top: 1440px; min-height: 240px; display: flex; align-items: flex-start; justify-content: center; z-index: 7; }
-.cap { position: absolute; left: 0; right: 0; text-align: center; font: 800 70px/1.18 var(--body); visibility: hidden; text-wrap: balance; }
-.cap .w { display: inline-block; margin: 0 .12em; color: #fff; text-shadow: 0 4px 0 #000, 0 0 18px rgba(0,0,0,.9); -webkit-text-stroke: 3px #000; paint-order: stroke fill; }
-.cap .w.kb { color: var(--team-b); } .cap .w.kc { color: var(--team-c); } .cap .w.ka { color: var(--team-a); }
-.prog { position: absolute; left: 60px; right: 60px; top: 1735px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; z-index: 6; }
-.prog i { position: absolute; inset: 0; transform-origin: 0 50%; background: var(--team-b); }
-#fx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
-#scenes { position: absolute; inset: 0; z-index: 3; }
-#fx b { position: absolute; left: 540px; top: 900px; width: 22px; height: 34px; border-radius: 4px; }
-@media (prefers-reduced-motion: reduce) { .stripes { display: none; } }
+/* ---------- typed caption ---------- */
+.caption { position: absolute; left: 70px; right: 70px; top: 1420px; height: 260px; z-index: 6; }
+.cap { position: absolute; left: 0; right: 0; top: 0; font: 700 54px/1.3 var(--mono); color: var(--text); text-align: center; visibility: hidden; }
+.cap i { font-style: normal; display: none; }
+.cap i.ka { color: var(--a); } .cap i.kb { color: var(--b); } .cap i.kc { color: var(--c); }
+.cur { display: inline-block; width: .6em; height: 1.05em; margin-left: 4px; vertical-align: -.16em; background: var(--orange); }
+@media (prefers-reduced-motion: reduce) { .laptop { transform: none !important; } }
 </style>
 
 <div class="player">
   <div class="stage-wrap" id="wrap">
     <div class="stage" id="stage">
-      <div class="glow"></div>
-      <div class="stripes" id="stripes"></div>
-      <div class="tags">
-        <div class="tag" id="tag1"><svg viewBox="0 0 52 40" aria-hidden="true"><path d="M3 34 L7 8 L18 20 L26 3 L34 20 L45 8 L49 34 Z" fill="#e8a316"/><rect x="3" y="35" width="46" height="5" rx="2" fill="#e8a316"/></svg>Road to the Crown</div>
-        <div class="tag sm" id="tag2">MLBB · 3 teams · Best of 3</div>
-      </div>
-      <div id="scenes"></div>
+      <div class="desk"></div>
+      <div class="spill"></div>
+      <div class="head" id="head"><b>Road to the Crown</b><span>MLBB · 3 teams · Best of 3</span></div>
+      <div class="rig"><div class="laptop" id="laptop">
+        <div class="lid"><div class="screen" id="screen"><div id="fx"></div></div></div>
+        <div class="base"></div>
+      </div></div>
       <div class="caption" id="caption"></div>
-      <div class="prog"><i id="progBar"></i></div>
-      <div id="fx"></div>
     </div>
     <button class="cover" id="cover" type="button"><span>▶ Play with sound</span></button>
   </div>
@@ -124,7 +124,7 @@ body.render .controls, body.render .cover { display: none; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script>
-const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Three teams.","t":0.35,"d":0.961},{"text":"One crown.","t":1.451,"d":0.955},{"text":"Who will be the champion?","t":2.546,"d":1.367}]},{"id":"rule1","t":4.463,"d":5.416,"phrases":[{"text":"Every series is a best of three.","t":4.813,"d":1.738},{"text":"Win two, nothing,","t":6.691,"d":1.152},{"text":"and you get three points.","t":7.983,"d":1.346}]},{"id":"rule2","t":9.878,"d":4.942,"phrases":[{"text":"Win two, one,","t":10.228,"d":1.014},{"text":"you get two points,","t":11.383,"d":1.202},{"text":"and the loser still gets one.","t":12.725,"d":1.545}]},{"id":"res1","t":14.821,"d":4.876,"phrases":[{"text":"First,","t":15.171,"d":0.662},{"text":"Team B swept Team A, two, nothing.","t":15.972,"d":1.803},{"text":"Three points for B!","t":17.915,"d":1.231}]},{"id":"res2","t":19.696,"d":4.855,"phrases":[{"text":"Team C won game one against Team A.","t":20.046,"d":2.272},{"text":"That series is still going.","t":22.459,"d":1.542}]},{"id":"res3","t":24.551,"d":5.029,"phrases":[{"text":"And Team B won game one against Team C.","t":24.901,"d":2.43},{"text":"That one is still going too.","t":27.471,"d":1.559}]},{"id":"table","t":29.58,"d":5.103,"phrases":[{"text":"So right now,","t":29.93,"d":1.026},{"text":"Team B has three points.","t":31.096,"d":1.562},{"text":"C and A have zero.","t":32.798,"d":1.335}]},{"id":"aout","t":34.682,"d":6.707,"phrases":[{"text":"Team A can only reach two points.","t":35.032,"d":1.879},{"text":"That's not enough to catch B.","t":37.051,"d":1.625},{"text":"Team A is out of the title race.","t":38.815,"d":2.024}]},{"id":"next","t":41.389,"d":3.79,"phrases":[{"text":"So it's B versus C.","t":41.739,"d":1.46},{"text":"Next up, game two!","t":43.34,"d":1.29}]},{"id":"bwins","t":45.179,"d":6.848,"phrases":[{"text":"If B wins game two,","t":45.529,"d":1.399},{"text":"B gets six points.","t":47.068,"d":1.363},{"text":"Nobody can catch that.","t":48.571,"d":1.416},{"text":"Team B is champion!","t":50.127,"d":1.351}]},{"id":"cwins","t":52.028,"d":4.392,"phrases":[{"text":"But if C wins game two,","t":52.378,"d":1.58},{"text":"the series goes to game three.","t":54.098,"d":1.772}]},{"id":"g3b","t":56.42,"d":7.473,"phrases":[{"text":"If B wins game three,","t":56.77,"d":1.498},{"text":"B finishes with five points.","t":58.408,"d":1.75},{"text":"C can only reach four.","t":60.298,"d":1.547},{"text":"B is still champion!","t":61.985,"d":1.358}]},{"id":"g3c","t":63.893,"d":7.723,"phrases":[{"text":"But if C wins game three,","t":64.243,"d":1.567},{"text":"B is stuck on four points,","t":65.95,"d":1.709},{"text":"and C has two.","t":67.799,"d":1.199},{"text":"Now it all depends on C versus A.","t":69.138,"d":1.929}]},{"id":"o1","t":71.616,"d":5.451,"phrases":[{"text":"If C beats A, two, nothing,","t":71.966,"d":1.668},{"text":"C gets five points,","t":73.775,"d":1.401},{"text":"and takes the crown!","t":75.316,"d":1.201}]},{"id":"o2","t":77.067,"d":5.635,"phrases":[{"text":"If A comes back and beats C,","t":77.417,"d":1.679},{"text":"C stays on three.","t":79.236,"d":1.425},{"text":"Team B is champion!","t":80.801,"d":1.351}]},{"id":"o3","t":82.702,"d":8.29,"phrases":[{"text":"And if C beats A, two, one,","t":83.052,"d":1.664},{"text":"B and C are tied on four points.","t":84.856,"d":2.07},{"text":"Then they play a head to head match,","t":87.065,"d":1.739},{"text":"and the winner takes the crown!","t":88.944,"d":1.498}]},{"id":"sum","t":90.992,"d":7.607,"phrases":[{"text":"So,","t":91.342,"d":0.554},{"text":"Team B needs just one more win.","t":92.036,"d":1.968},{"text":"Team C must beat B twice, then beat A.","t":94.144,"d":2.246},{"text":"Who do you think takes the crown?","t":96.531,"d":1.518}]}]/*END*/;
+const TIMING = /*TIMING*/[{"id":"hook1","t":0.0,"d":3.003,"phrases":[{"text":"Three teams.","t":0.3,"d":0.939},{"text":"One crown.","t":1.498,"d":0.905}]},{"id":"hook2","t":3.003,"d":3.726,"phrases":[{"text":"And right now...","t":3.303,"d":0.952},{"text":"nobody knows who gets it.","t":4.515,"d":1.614}]},{"id":"rule1","t":6.729,"d":6.799,"phrases":[{"text":"Here's how it works.","t":7.029,"d":1.135},{"text":"Every match is a best of three.","t":8.424,"d":1.667},{"text":"Win two, nothing...","t":10.351,"d":1.181},{"text":"that's three points.","t":11.792,"d":1.136}]},{"id":"rule2","t":13.528,"d":5.081,"phrases":[{"text":"Win two, one...","t":13.828,"d":0.993},{"text":"that's two points.","t":15.081,"d":1.126},{"text":"And the loser still gets one.","t":16.467,"d":1.541}]},{"id":"res1","t":18.608,"d":5.234,"phrases":[{"text":"So far,","t":18.908,"d":0.809},{"text":"Team B swept Team A, two, nothing.","t":19.978,"d":1.808},{"text":"Three points for B.","t":22.046,"d":1.196}]},{"id":"res2","t":23.842,"d":5.253,"phrases":[{"text":"Team B also won game one against Team C.","t":24.142,"d":2.552},{"text":"That series is still going.","t":26.954,"d":1.541}]},{"id":"res3","t":29.095,"d":4.6,"phrases":[{"text":"And Team C won game one against Team A.","t":29.395,"d":2.25},{"text":"Still going too.","t":31.905,"d":1.19}]},{"id":"table","t":33.695,"d":5.12,"phrases":[{"text":"So right now,","t":33.995,"d":1.012},{"text":"B has three points.","t":35.268,"d":1.369},{"text":"C and A have zero.","t":36.897,"d":1.319}]},{"id":"aout","t":38.816,"d":6.651,"phrases":[{"text":"Team A can only reach two points.","t":39.116,"d":1.883},{"text":"So A can't win the title.","t":41.259,"d":1.533},{"text":"But A can still decide who does.","t":43.053,"d":1.814}]},{"id":"next","t":45.466,"d":6.353,"phrases":[{"text":"Next up...","t":45.766,"d":0.762},{"text":"it's A versus C, game two.","t":46.788,"d":1.7},{"text":"And Team B?","t":48.748,"d":0.937},{"text":"B is just waiting.","t":49.945,"d":1.274}]},{"id":"cwin","t":51.819,"d":6.663,"phrases":[{"text":"If C wins,","t":52.119,"d":1.019},{"text":"C sweeps A, and gets three points.","t":53.398,"d":2.015},{"text":"Then it all comes down to B versus C.","t":55.674,"d":2.209}]},{"id":"cwin2","t":58.482,"d":6.655,"phrases":[{"text":"B needs just one win to be champion.","t":58.782,"d":2.165},{"text":"C has to beat B twice...","t":61.207,"d":1.558},{"text":"and then C takes the crown.","t":63.025,"d":1.512}]},{"id":"awin","t":65.137,"d":4.42,"phrases":[{"text":"But if A wins game two...","t":65.437,"d":1.498},{"text":"the series goes to game three.","t":67.195,"d":1.762}]},{"id":"a3","t":69.557,"d":7.299,"phrases":[{"text":"If A wins again,","t":69.857,"d":1.119},{"text":"C only gets one point.","t":71.236,"d":1.647},{"text":"And Team B is champion...","t":73.143,"d":1.495},{"text":"without even playing!","t":74.898,"d":1.358}]},{"id":"c3","t":76.856,"d":5.9,"phrases":[{"text":"If C wins game three,","t":77.156,"d":1.465},{"text":"C has two points.","t":78.881,"d":1.239},{"text":"Then B versus C decides it.","t":80.38,"d":1.775}]},{"id":"c3b","t":82.756,"d":7.802,"phrases":[{"text":"If B wins just one game,","t":83.056,"d":1.678},{"text":"B is champion.","t":84.994,"d":1.139},{"text":"But if C beats B twice...","t":86.393,"d":1.609},{"text":"they're tied on four points.","t":88.262,"d":1.696}]},{"id":"h2h","t":90.558,"d":4.233,"phrases":[{"text":"Then it's a head to head match.","t":90.858,"d":1.652},{"text":"And the winner takes the crown.","t":92.77,"d":1.421}]},{"id":"sum","t":94.79,"d":7.723,"phrases":[{"text":"So here's the thing.","t":95.09,"d":1.135},{"text":"B needs one more win.","t":96.486,"d":1.362},{"text":"C needs to beat B twice.","t":98.108,"d":1.716},{"text":"And A decides how hard that is.","t":100.084,"d":1.829}]},{"id":"end","t":102.513,"d":3.218,"phrases":[{"text":"So...","t":102.813,"d":0.562},{"text":"who do you think takes the crown?","t":103.635,"d":1.496}]}]/*END*/;
 (function () {
   const RENDER = /[?&]render\b/.test(location.search);
   if (RENDER) document.body.classList.add('render');
@@ -135,114 +135,109 @@ const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Thr
   new ResizeObserver(fit).observe(wrap); fit();
 
   /* ---------- building blocks ---------- */
-  const SH = (t, s = 'M') => '<div class="shield ' + s + ' s-' + t.toLowerCase() + '">' + t + '</div>';
-  const C = { A: 'var(--team-a)', B: 'var(--team-b)', C: 'var(--team-c)', T: 'var(--tie)' };
-  const crown = col => '<svg viewBox="0 0 52 40" aria-hidden="true"><path d="M3 34 L7 8 L18 20 L26 3 L34 20 L45 8 L49 34 Z" fill="' + col + '"/><rect x="3" y="35" width="46" height="5" rx="2" fill="' + col + '"/><circle cx="7" cy="8" r="3" fill="' + col + '"/><circle cx="26" cy="3" r="3" fill="' + col + '"/><circle cx="45" cy="8" r="3" fill="' + col + '"/></svg>';
-  const champ = (t, label) => '<div class="champ" style="--cc:' + C[t] + '">' + crown(C[t]) + '<div class="huge">' + label + '</div></div>';
-  const vs = (a, b, s = 'M') => '<div class="row">' + SH(a, s) + '<div class="vs">vs</div>' + SH(b, s) + '</div>';
-  // p = phrase index the element arrives on; fx = entrance style
+  const T = (t, s = 'M') => '<div class="tile ' + s + ' k-' + t.toLowerCase() + '">' + t + '</div>';
+  const VS = (a, b, s = 'M') => '<div class="row">' + T(a, s) + '<span class="vs">vs</span>' + T(b, s) + '</div>';
+  const CROWN = { A: '#3fd0e0', B: '#ffbe3d', C: '#ff4f7b', X: '#b89cff' };
+  const crown = c => '<svg viewBox="0 0 52 40" aria-hidden="true"><path d="M3 34 L7 8 L18 20 L26 3 L34 20 L45 8 L49 34 Z" fill="' + c + '" stroke="#111" stroke-width="1.5"/><rect x="3" y="35" width="46" height="5" rx="2" fill="' + c + '" stroke="#111" stroke-width="1.5"/></svg>';
+  const champ = (t, label, cls) => '<div class="champ">' + crown(CROWN[t]) + '<div class="big ' + cls + '">' + label + '</div></div>';
+  const need = (t, html) => '<div class="need">' + T(t, 'S') + '<div class="mid">' + html + '</div></div>';
+  const slots = (w, k) => '<div class="slots"><div class="slot f k-' + k + '">' + w + '</div><div class="slot">G2</div><div class="slot">G3</div></div>';
   const el = (html, p, fx = 'blur') => html.replace(/^<(\w+)/, '<$1 data-p="' + p + '" data-fx="' + fx + '"');
+  const MAG = '<svg class="mag" data-mag viewBox="0 0 120 120" aria-hidden="true"><circle cx="48" cy="48" r="34" fill="rgba(255,255,255,.18)" stroke="#141210" stroke-width="9"/><path d="M73 73 L108 108" stroke="#5a3214" stroke-width="16" stroke-linecap="round"/><path d="M73 73 L82 82" stroke="#141210" stroke-width="12" stroke-linecap="round"/></svg>';
 
-  /* accent: glow colour for the scene. confetti: phrase index that fires a burst */
+  /* theme: L light, D dark, O orange. confetti: [phrase, colour] */
   const SCENES = {
-    hook:  { accent: C.B, html: [
-      el('<div class="row">' + SH('A') + SH('B') + SH('C') + '</div>', 0, 'pop'),
-      el('<div class="row">' + '<div class="huge tb">One crown</div></div>', 1),
-      el('<div class="big">Who wins it all?</div>', 2) ] },
-    rule1: { accent: C.B, html: [
-      el('<div class="pill blive">Best of 3 series</div>', 0),
-      el('<div class="mega">2–0</div>', 1, 'pop'),
-      el('<div class="huge tb">= 3 points</div>', 2) ] },
-    rule2: { accent: C.C, html: [
+    hook1: { th: 'D', html: [
+      el('<div class="row">' + T('A', 'L') + T('B', 'L') + T('C', 'L') + '</div>', 0, 'pop'),
+      el('<div class="ser">one crown.</div>', 1) ] },
+    hook2: { th: 'O', html: [
+      el('<div class="lab">and right now…</div>', 0),
+      el('<div class="mega" style="font-size:190px">nobody</div>', 1, 'pop'),
+      el('<div class="ser s">knows who gets it.</div>', 1) ], mag: 1 },
+    rule1: { th: 'L', html: [
+      el('<div class="lab">every match · best of 3</div>', 1),
+      el('<div class="mega">2–0</div>', 2, 'pop'),
+      el('<div class="big acc">= 3 points</div>', 3) ] },
+    rule2: { th: 'L', html: [
       el('<div class="mega">2–1</div>', 0, 'pop'),
-      el('<div class="big tb">Winner 2 pts</div>', 1),
-      el('<div class="big tc">Loser 1 pt</div>', 2) ] },
-    res1:  { accent: C.B, html: [
-      el(vs('A', 'B'), 0, 'pop'),
-      el('<div class="mega"><span class="ta">0</span>–<span class="tb">2</span></div>', 1, 'pop'),
-      el('<div class="stamp final">Final</div>', 1, 'stamp'),
-      el('<div class="huge tb">+3 for B</div>', 2) ] },
-    res2:  { accent: C.C, html: [
-      el(vs('A', 'C'), 0, 'pop'),
-      el('<div class="mega"><span class="ta">0</span>–<span class="tc">1</span></div>', 0),
-      el('<div class="slots"><div class="slot fc">C</div><div class="slot">G2</div><div class="slot">G3</div></div>', 1),
-      el('<div class="pill live">Still going</div>', 1) ] },
-    res3:  { accent: C.B, html: [
-      el(vs('B', 'C'), 0, 'pop'),
-      el('<div class="mega"><span class="tb">1</span>–<span class="tc">0</span></div>', 0),
-      el('<div class="slots"><div class="slot fb">B</div><div class="slot">G2</div><div class="slot">G3</div></div>', 1),
-      el('<div class="pill blive">Still going</div>', 1) ] },
-    table: { accent: C.B, html: [
-      el('<div class="lab">Points right now</div>', 0),
-      el('<div class="trow">' + SH('B', 'S') + '<div class="nm tb">Team B</div><div class="n tb">3</div></div>', 1, 'up'),
-      el('<div class="trow">' + SH('C', 'S') + '<div class="nm tc">Team C</div><div class="n tc">0</div></div>', 2, 'up'),
-      el('<div class="trow">' + SH('A', 'S') + '<div class="nm ta">Team A</div><div class="n ta">0</div></div>', 2, 'up') ] },
-    aout:  { accent: C.A, html: [
-      el('<div class="row">' + SH('A', 'L') + '</div>', 0, 'pop'),
-      el('<div class="big">A max <span class="ta">2 pts</span></div>', 0),
-      el('<div class="big">B has <span class="tb">3 pts</span></div>', 1),
-      el('<div class="stamp">Out of title race</div>', 2, 'stamp') ] },
-    next:  { accent: C.C, html: [
-      el(vs('B', 'C', 'L'), 0, 'pop'),
-      el('<div class="huge tb">Game 2</div>', 1, 'pop'),
-      el('<div class="lab">B leads 1–0</div>', 1) ] },
-    bwins: { accent: C.B, confetti: 3, html: [
-      el('<div class="big">If <span class="tb">B</span> wins G2</div>', 0),
-      el('<div class="mega tb">6 pts</div>', 1, 'pop'),
-      el('<div class="mid tm">C max 3 · A max 2</div>', 2),
-      el(champ('B', 'B champion'), 3, 'pop') ] },
-    cwins: { accent: C.C, html: [
-      el('<div class="big">If <span class="tc">C</span> wins G2</div>', 0),
-      el('<div class="mega"><span class="tb">1</span>–<span class="tc">1</span></div>', 0, 'pop'),
-      el('<div class="huge">Game 3</div>', 1, 'pop') ] },
-    g3b:   { accent: C.B, confetti: 3, html: [
-      el('<div class="big">If <span class="tb">B</span> wins G3</div>', 0),
-      el('<div class="huge">B = <span class="tb">5 pts</span></div>', 1),
-      el('<div class="big">C max <span class="tc">4</span></div>', 2),
-      el(champ('B', 'B champion'), 3, 'pop') ] },
-    g3c:   { accent: C.C, html: [
-      el('<div class="big">If <span class="tc">C</span> wins G3</div>', 0),
-      el('<div class="row"><div class="huge tb">B 4</div><div class="huge tc">C 2</div></div>', 1),
-      el(vs('A', 'C', 'S'), 3, 'pop'),
-      el('<div class="big">A vs C decides</div>', 3) ] },
-    o1:    { accent: C.C, confetti: 2, html: [
-      el('<div class="big"><span class="tc">C</span> beats <span class="ta">A</span> 2–0</div>', 0),
-      el('<div class="mega tc">C 5</div>', 1, 'pop'),
-      el('<div class="mid tm">B stays on 4</div>', 1),
-      el(champ('C', 'C champion'), 2, 'pop') ] },
-    o2:    { accent: C.A, confetti: 2, html: [
-      el('<div class="big"><span class="ta">A</span> beats <span class="tc">C</span></div>', 0),
-      el('<div class="huge">C = <span class="tc">3 pts</span></div>', 1),
-      el('<div class="mid tm">B has 4</div>', 1),
-      el(champ('B', 'B champion'), 2, 'pop') ] },
-    o3:    { accent: C.T, confetti: 3, html: [
-      el('<div class="big"><span class="tc">C</span> beats <span class="ta">A</span> 2–1</div>', 0),
-      el('<div class="mega"><span class="tb">4</span><span class="tt">=</span><span class="tc">4</span></div>', 1, 'pop'),
-      el('<div class="big tt">Head-to-head</div>', 2),
-      el(vs('B', 'C', 'S'), 2, 'pop'),
-      el('<div class="big tb">Winner takes crown</div>', 3, 'pop') ] },
-    sum:   { accent: C.B, html: [
-      el('<div class="lab">What they need</div>', 0),
-      el('<div class="need" style="--cc:var(--team-b)">' + SH('B', 'S') + '<div class="mid">Just <span class="tb">1 more win</span></div></div>', 1, 'up'),
-      el('<div class="need" style="--cc:var(--team-c)">' + SH('C', 'S') + '<div class="mid">Beat B <span class="tc">twice</span>, then beat A</div></div>', 2, 'up'),
-      el('<div class="big">Who takes the <span class="tb">crown?</span></div>', 3, 'pop') ] }
+      el('<div class="row" style="gap:120px"><div class="stat" data-p="1" data-fx="up"><b class="acc">2</b><span class="lab">winner</span></div><div class="stat" data-p="2" data-fx="up"><b>1</b><span class="lab">loser</span></div></div>', 1, 'none') ] },
+    res1:  { th: 'D', html: [
+      el('<div class="lab">so far</div>', 0),
+      el('<div class="row">' + T('A') + '<div class="mega"><span class="ta">0</span>–<span class="tb">2</span></div>' + T('B') + '</div>', 1, 'pop'),
+      el('<div class="big tb">+3 for B</div>', 2) ] },
+    res2:  { th: 'D', html: [
+      el('<div class="row">' + T('B') + '<div class="mega"><span class="tb">1</span>–<span class="tc">0</span></div>' + T('C') + '</div>', 0, 'pop'),
+      el(slots('B', 'b'), 0),
+      el('<div class="pill tb">still going</div>', 1) ] },
+    res3:  { th: 'D', html: [
+      el('<div class="row">' + T('A') + '<div class="mega"><span class="ta">0</span>–<span class="tc">1</span></div>' + T('C') + '</div>', 0, 'pop'),
+      el(slots('C', 'c'), 0),
+      el('<div class="pill tc">still going</div>', 1) ] },
+    table: { th: 'L', html: [
+      el('<div class="lab">points right now</div>', 0),
+      el('<div class="trow">' + T('B', 'S') + '<div class="nm">Team B</div><div class="n tb">3</div></div>', 1, 'up'),
+      el('<div class="trow">' + T('C', 'S') + '<div class="nm">Team C</div><div class="n tc">0</div></div>', 2, 'up'),
+      el('<div class="trow">' + T('A', 'S') + '<div class="nm">Team A</div><div class="n ta">0</div></div>', 2, 'up') ] },
+    aout:  { th: 'O', html: [
+      el('<div class="row">' + T('A') + '<div class="big">max 2 pts</div></div>', 0, 'pop'),
+      el('<div class="stamp">can’t win</div>', 1, 'stamp'),
+      el('<div class="ser s">…but A decides who does.</div>', 2) ] },
+    next:  { th: 'D', html: [
+      el('<div class="lab acc">next up</div>', 0),
+      el(VS('A', 'C', 'L'), 1, 'pop'),
+      el('<div class="big">game 2</div>', 1),
+      el('<div class="row" style="gap:22px;opacity:.75">' + T('B', 'XS') + '<span class="lab" style="color:var(--fg)">B is waiting</span><span class="dots" data-dots><i></i><i></i><i></i></span></div>', 2, 'up') ] },
+    cwin:  { th: 'L', html: [
+      el('<div class="row">' + '<span class="big">if</span>' + T('C') + '<span class="big">wins</span></div>', 0, 'pop'),
+      el('<div class="big">C sweeps A <span class="tc">+3</span></div>', 1),
+      el('<div class="row">' + T('B', 'S') + '<span class="vs">vs</span>' + T('C', 'S') + '<span class="ser s">decides</span></div>', 2) ] },
+    cwin2: { th: 'L', confetti: [2, '#ff4f7b'], html: [
+      el(need('B', '1 win → <span class="tb">champion</span>'), 0, 'up'),
+      el(need('C', 'beat B <span class="tc">twice</span>'), 1, 'up'),
+      el(champ('C', 'C champion', 'tc'), 2, 'pop') ] },
+    awin:  { th: 'D', html: [
+      el('<div class="row">' + '<span class="big">if</span>' + T('A') + '<span class="big">wins G2</span></div>', 0, 'pop'),
+      el('<div class="mega"><span class="ta">1</span>–<span class="tc">1</span></div>', 0),
+      el('<div class="big acc">game 3</div>', 1, 'pop') ] },
+    a3:    { th: 'O', confetti: [2, '#ffbe3d'], html: [
+      el('<div class="big">A wins again</div>', 0),
+      el('<div class="mid">C gets just 1 pt</div>', 1),
+      el(champ('B', 'B champion', 'tb'), 2, 'pop'),
+      el('<div class="ser s">without even playing!</div>', 3) ] },
+    c3:    { th: 'D', html: [
+      el('<div class="row">' + '<span class="big">if</span>' + T('C') + '<span class="big">wins G3</span></div>', 0, 'pop'),
+      el('<div class="mega tc">C = 2</div>', 1, 'pop'),
+      el('<div class="row">' + T('B', 'S') + '<span class="vs">vs</span>' + T('C', 'S') + '<span class="ser s">decides it</span></div>', 2) ] },
+    c3b:   { th: 'L', html: [
+      el(need('B', '1 win → <span class="tb">champion</span>'), 0, 'up'),
+      el(need('C', 'beats B <span class="tc">twice</span>'), 2, 'up'),
+      el('<div class="mega"><span class="tb">4</span><span class="tt">=</span><span class="tc">4</span></div>', 3, 'pop') ] },
+    h2h:   { th: 'D', confetti: [1, '#b89cff'], html: [
+      el('<div class="ser tt">head-to-head</div>', 0),
+      el(VS('B', 'C', 'L'), 0, 'pop'),
+      el(champ('X', 'winner takes it', 'tt mid'), 1, 'pop') ] },
+    sum:   { th: 'L', html: [
+      el('<div class="lab">so here’s the thing</div>', 0),
+      el(need('B', 'needs <span class="tb">1 more win</span>'), 1, 'up'),
+      el(need('C', 'must beat B <span class="tc">twice</span>'), 2, 'up'),
+      el(need('A', '<span class="ta">decides</span> how hard'), 3, 'up') ] },
+    end:   { th: 'O', html: [
+      el('<div class="ser">so…</div>', 0),
+      el('<div class="big">who takes<br>the crown?</div>', 1, 'pop') ] }
   };
 
-  /* ---------- build DOM ---------- */
-  const scenesEl = $('#scenes'), capEl = $('#caption');
-  const teamWord = (w, prev) => {
-    const k = w.replace(/[^A-Za-z]/g, '');
-    if (k === 'B' || k === 'C') return 'k' + k.toLowerCase();
-    if (k === 'A' && prev !== '') return 'ka';
-    return '';
-  };
+  /* ---------- DOM ---------- */
+  const screen = $('#screen'), capEl = $('#caption');
+  const teamKey = (w, prev) => { const k = w.replace(/[^A-Za-z]/g, ''); if (k === 'B' || k === 'C') return 'k' + k.toLowerCase(); if (k === 'A' && prev) return 'ka'; return ''; };
   TIMING.forEach(sc => {
-    const d = document.createElement('section'); d.className = 'scene'; d.id = 'sc-' + sc.id;
-    d.innerHTML = SCENES[sc.id].html.join(''); scenesEl.appendChild(d);
+    const d = document.createElement('section'); d.className = 'scene t-' + SCENES[sc.id].th; d.id = 'sc-' + sc.id;
+    d.innerHTML = SCENES[sc.id].html.join('') + (SCENES[sc.id].mag != null ? MAG : '');
+    screen.insertBefore(d, $('#fx'));
     sc.phrases.forEach((p, i) => {
       const c = document.createElement('div'); c.className = 'cap'; c.id = 'cap-' + sc.id + '-' + i;
       const words = p.text.split(' ');
-      c.innerHTML = words.map((w, j) => '<span class="w ' + teamWord(w, j ? words[j - 1] : '') + '">' + w + '</span>').join(' ');
+      const word = (w, j) => { const k = teamKey(w, j > 0); return Array.from(w).map(ch => '<i class="' + k + '">' + ch + '</i>').join(''); };
+      c.innerHTML = words.slice(0, -1).map(word).map(h => h + '<i> </i>').join('') + '<span style="white-space:nowrap">' + word(words[words.length - 1], words.length - 1) + '<span class="cur"></span></span>';
       capEl.appendChild(c);
     });
   });
@@ -250,69 +245,66 @@ const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Thr
   /* ---------- timeline ---------- */
   const tl = gsap.timeline({ paused: true });
   const last = TIMING[TIMING.length - 1];
-  const END = last.t + last.d + 0.4;
-  tl.fromTo('#stripes', { x: 0 }, { x: -600, duration: END, ease: 'none' }, 0);
-  tl.fromTo('#progBar', { scaleX: 0 }, { scaleX: 1, duration: END, ease: 'none' }, 0);
-  tl.from('#tag1', { y: -60, autoAlpha: 0, filter: 'blur(16px)', duration: .6, ease: 'power3.out' }, 0);
-  tl.from('#tag2', { y: -40, autoAlpha: 0, filter: 'blur(16px)', duration: .6, ease: 'power3.out' }, .15);
-
+  const END = last.t + last.d + 0.6;
   const FX = {
-    blur:  { autoAlpha: 0, scale: 1.25, filter: 'blur(26px)', duration: .55, ease: 'power3.out' },
-    pop:   { autoAlpha: 0, scale: .4, duration: .6, ease: 'back.out(1.9)' },
-    up:    { autoAlpha: 0, y: 120, duration: .55, ease: 'power3.out' },
-    stamp: { autoAlpha: 0, scale: 2.6, duration: .4, ease: 'back.out(1.3)' }
+    blur:  { autoAlpha: 0, scale: 1.18, filter: 'blur(22px)', duration: .5, ease: 'power3.out' },
+    pop:   { autoAlpha: 0, scale: .45, duration: .55, ease: 'back.out(1.8)' },
+    up:    { autoAlpha: 0, y: 90, duration: .5, ease: 'power3.out' },
+    stamp: { autoAlpha: 0, scale: 2.4, duration: .38, ease: 'back.out(1.3)' }
   };
-  // deterministic confetti
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  tl.from('#head', { autoAlpha: 0, y: -30, filter: 'blur(12px)', duration: .8, ease: 'power3.out' }, 0);
+  tl.from('#laptop', { autoAlpha: 0, y: 80, rotateX: 18, duration: 1.1, ease: 'power3.out' }, 0);
+  gsap.set('.cur', { opacity: 1 });
+  tl.to('.cur', { opacity: 0, duration: .42, ease: 'steps(1)', repeat: Math.ceil(END / .42), yoyo: true }, 0);
+
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const fx = $('#fx');
   function confetti(at, color) {
-    const cols = [color, '#ffffff', '#ffbe3d', color];
-    for (let i = 0; i < 48; i++) {
-      const b = document.createElement('b'); b.style.background = cols[i % cols.length]; fx.appendChild(b);
-      const ang = rnd() * Math.PI * 2, sp = 380 + rnd() * 520;
-      const dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp - 300;
+    const cols = [color, '#ffffff', color, '#111111'];
+    for (let i = 0; i < 44; i++) {
+      const b = document.createElement('b'); b.style.background = cols[i % 4]; fx.appendChild(b); gsap.set(b, { autoAlpha: 0 });
+      const ang = rnd() * Math.PI * 2, sp = 260 + rnd() * 380, dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp * .7 - 200;
       tl.set(b, { autoAlpha: 1, x: 0, y: 0, rotate: 0 }, at);
-      tl.to(b, { x: dx, duration: 1.8, ease: 'power2.out' }, at);
-      tl.to(b, { keyframes: [{ y: dy, duration: .7, ease: 'power2.out' }, { y: dy + 900, duration: 1.1, ease: 'power1.in' }] }, at);
-      tl.to(b, { rotate: (rnd() - .5) * 1080, duration: 1.8, ease: 'none' }, at);
-      tl.to(b, { autoAlpha: 0, duration: .4 }, at + 1.4);
+      tl.to(b, { x: dx, rotate: (rnd() - .5) * 900, duration: 1.7, ease: 'power2.out' }, at);
+      tl.to(b, { keyframes: [{ y: dy, duration: .6, ease: 'power2.out' }, { y: dy + 700, duration: 1.1, ease: 'power1.in' }] }, at);
+      tl.set(b, { autoAlpha: 0 }, at + 1.7);
     }
-    gsap.set(fx.children, { autoAlpha: 0 });
   }
+  const GLOW = { L: '#f1f0ec', D: '#4a5068', O: '#ef6f43' };
+  // camera: slow drift, a new angle per scene
+  const ANG = [[-4, 3], [3, 2], [-2, 4], [4, 2.5], [-3, 3.5], [2, 2], [-4, 2.5], [3, 4]];
 
   TIMING.forEach((sc, si) => {
     const def = SCENES[sc.id], node = $('#sc-' + sc.id);
-    const start = sc.t, end = sc.t + sc.d;
+    const start = sc.t, end = sc.t + sc.d, a = ANG[si % ANG.length];
     tl.addLabel(sc.id, start);
-    tl.to('.stage', { '--g': def.accent.replace(/var\((--[\w-]+)\)/, (m, v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim()), duration: .6 }, start);
-    tl.set(node, { visibility: 'visible', autoAlpha: 1, scale: 1, filter: 'blur(0px)' }, start);
+    tl.to('#laptop', { rotateY: a[0], rotateX: a[1], scale: 1 + (si % 3) * .015, duration: sc.d + .3, ease: 'sine.inOut' }, start - .2);
+    tl.to('.stage', { '--glow': GLOW[def.th], duration: .4 }, start);
+    tl.set(node, { visibility: 'visible' }, start - .02);
+    tl.fromTo(node, { autoAlpha: 0, scale: 1.06, filter: 'blur(14px)' }, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .35, ease: 'power2.out', immediateRender: false }, start - .02);
+    if (si < TIMING.length - 1) tl.set(node, { visibility: 'hidden' }, TIMING[si + 1].t + .4);
     $$('[data-p]', node).forEach(e => {
+      if (e.dataset.fx === 'none') return;
       const p = sc.phrases[+e.dataset.p];
-      tl.from(e, { ...FX[e.dataset.fx] }, Math.max(start + .05, p.t - .12));
+      tl.from(e, { ...FX[e.dataset.fx] }, Math.max(start + .08, p.t - .1));
     });
-    if (def.confetti != null) confetti(sc.phrases[def.confetti].t + .2, def.accent.includes('team-c') ? '#ff4f7b' : def.accent.includes('tie') ? '#c2a8ff' : '#ffbe3d');
-    if (si < TIMING.length - 1) {
-      tl.to(node, { autoAlpha: 0, scale: .92, filter: 'blur(18px)', duration: .3, ease: 'power2.in' }, end - .3);
-      tl.set(node, { visibility: 'hidden' }, end);
-    }
-    // captions: words pop in across each phrase
+    const mag = $('[data-mag]', node);
+    if (mag) { const p = sc.phrases[def.mag]; tl.fromTo(mag, { x: -160, y: 120, rotate: -20, autoAlpha: 0 }, { keyframes: [{ x: 0, y: 0, rotate: 0, autoAlpha: 1, duration: .5 }, { x: 420, y: -20, rotate: 8, duration: 1.4, ease: 'sine.inOut' }, { x: 200, y: 10, rotate: 0, duration: .9, ease: 'sine.inOut' }] }, p.t + .2); }
+    const dots = $$('[data-dots] i', node);
+    dots.forEach((d, i) => tl.fromTo(d, { y: 0 }, { y: -16, duration: .3, yoyo: true, repeat: Math.floor((end - start) / .6), ease: 'sine.inOut' }, start + .1 * i));
+    if (def.confetti) confetti(sc.phrases[def.confetti[0]].t + .25, def.confetti[1]);
+
+    // typed caption
     sc.phrases.forEach((p, i) => {
-      const cap = $('#cap-' + sc.id + '-' + i), ws = $$('.w', cap);
-      const nextT = i < sc.phrases.length - 1 ? sc.phrases[i + 1].t : end;
-      tl.set(cap, { visibility: 'visible' }, p.t - .05);
-      const chars = ws.map(w => w.textContent.length + 1), total = chars.reduce((a, b) => a + b, 0);
-      let acc = 0;
-      ws.forEach((w, j) => {
-        tl.from(w, { autoAlpha: 0, y: 30, scale: .7, duration: .18, ease: 'back.out(2)' }, p.t - .05 + p.d * .92 * (acc / total));
-        acc += chars[j];
-      });
-      tl.set(cap, { visibility: 'hidden' }, nextT - .02);
+      const cap = $('#cap-' + sc.id + '-' + i), chars = $$('i', cap);
+      const nextT = i < sc.phrases.length - 1 ? sc.phrases[i + 1].t : (si < TIMING.length - 1 ? TIMING[si + 1].phrases[0].t : END);
+      tl.set(cap, { visibility: 'visible' }, p.t - .06);
+      const span = Math.min(p.d * .85, chars.length * .06);
+      chars.forEach((ch, j) => tl.set(ch, { display: 'inline' }, p.t - .06 + span * (j / chars.length)));
+      tl.set(cap, { visibility: 'hidden' }, nextT - .08);
     });
   });
   tl.to({}, { duration: .01 }, END);
-  // make scene visibility start hidden at t=0
-  gsap.set('.scene', { visibility: 'hidden' });
-  gsap.set('.cap', { visibility: 'hidden' });
   tl.seek(0);
 
   window.__duration = END;
@@ -324,12 +316,11 @@ const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Thr
   scrub.max = END;
   const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   let playing = false, clock = 0, last0 = 0, useAudio = true, atRest = true;
-  function now() { return useAudio && !vo.paused ? vo.currentTime : clock; }
   function frame(ts) {
     if (playing) {
-      if (!useAudio || vo.paused) clock += (ts - last0) / 1000;
+      if (!useAudio || vo.paused) clock += (ts - last0) / 1000; else clock = vo.currentTime;
       last0 = ts;
-      const t = Math.min(now(), END);
+      const t = Math.min(clock, END);
       tl.seek(t, false);
       if (t >= END) stop();
     }
@@ -337,8 +328,8 @@ const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Thr
     requestAnimationFrame(frame);
   }
   function start() {
-    playing = true; cover.hidden = true; play.textContent = 'Pause'; last0 = performance.now();
     if (atRest || tl.time() >= END - .05) { atRest = false; tl.seek(0, false); }
+    playing = true; cover.hidden = true; play.textContent = 'Pause'; last0 = performance.now();
     clock = tl.time(); vo.currentTime = clock;
     vo.play().then(() => { useAudio = true; }).catch(() => { useAudio = false; });
   }
@@ -347,8 +338,7 @@ const TIMING = /*TIMING*/[{"id":"hook","t":0.0,"d":4.463,"phrases":[{"text":"Thr
   cover.addEventListener('click', start);
   scrub.addEventListener('input', () => { atRest = false; tl.seek(+scrub.value, false); clock = +scrub.value; if (playing) vo.currentTime = clock; });
   document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); play.click(); } });
-  // resting frame: the opening scene fully built
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { tl.seek(TIMING[0].t + TIMING[0].d - .4, false); clock = 0; });
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { tl.seek(TIMING[0].t + TIMING[0].d - .3, false); });
   requestAnimationFrame(frame);
 })();
 </script>

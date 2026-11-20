@@ -1,380 +1,409 @@
 [
  {
-  "id": "hook",
+  "id": "hook1",
   "t": 0.0,
-  "d": 4.463,
+  "d": 3.003,
   "phrases": [
    {
     "text": "Three teams.",
-    "t": 0.35,
-    "d": 0.961
+    "t": 0.3,
+    "d": 0.939
    },
    {
     "text": "One crown.",
-    "t": 1.451,
-    "d": 0.955
+    "t": 1.498,
+    "d": 0.905
+   }
+  ]
+ },
+ {
+  "id": "hook2",
+  "t": 3.003,
+  "d": 3.726,
+  "phrases": [
+   {
+    "text": "And right now...",
+    "t": 3.303,
+    "d": 0.952
    },
    {
-    "text": "Who will be the champion?",
-    "t": 2.546,
-    "d": 1.367
+    "text": "nobody knows who gets it.",
+    "t": 4.515,
+    "d": 1.614
    }
   ]
  },
  {
   "id": "rule1",
-  "t": 4.463,
-  "d": 5.416,
+  "t": 6.729,
+  "d": 6.799,
   "phrases": [
    {
-    "text": "Every series is a best of three.",
-    "t": 4.813,
-    "d": 1.738
+    "text": "Here's how it works.",
+    "t": 7.029,
+    "d": 1.135
    },
    {
-    "text": "Win two, nothing,",
-    "t": 6.691,
-    "d": 1.152
+    "text": "Every match is a best of three.",
+    "t": 8.424,
+    "d": 1.667
    },
    {
-    "text": "and you get three points.",
-    "t": 7.983,
-    "d": 1.346
+    "text": "Win two, nothing...",
+    "t": 10.351,
+    "d": 1.181
+   },
+   {
+    "text": "that's three points.",
+    "t": 11.792,
+    "d": 1.136
    }
   ]
  },
  {
   "id": "rule2",
-  "t": 9.878,
-  "d": 4.942,
+  "t": 13.528,
+  "d": 5.081,
   "phrases": [
    {
-    "text": "Win two, one,",
-    "t": 10.228,
-    "d": 1.014
+    "text": "Win two, one...",
+    "t": 13.828,
+    "d": 0.993
    },
    {
-    "text": "you get two points,",
-    "t": 11.383,
-    "d": 1.202
+    "text": "that's two points.",
+    "t": 15.081,
+    "d": 1.126
    },
    {
-    "text": "and the loser still gets one.",
-    "t": 12.725,
-    "d": 1.545
+    "text": "And the loser still gets one.",
+    "t": 16.467,
+    "d": 1.541
    }
   ]
  },
  {
   "id": "res1",
-  "t": 14.821,
-  "d": 4.876,
+  "t": 18.608,
+  "d": 5.234,
   "phrases": [
    {
-    "text": "First,",
-    "t": 15.171,
-    "d": 0.662
+    "text": "So far,",
+    "t": 18.908,
+    "d": 0.809
    },
    {
     "text": "Team B swept Team A, two, nothing.",
-    "t": 15.972,
-    "d": 1.803
+    "t": 19.978,
+    "d": 1.808
    },
    {
-    "text": "Three points for B!",
-    "t": 17.915,
-    "d": 1.231
+    "text": "Three points for B.",
+    "t": 22.046,
+    "d": 1.196
    }
   ]
  },
  {
   "id": "res2",
-  "t": 19.696,
-  "d": 4.855,
+  "t": 23.842,
+  "d": 5.253,
   "phrases": [
    {
-    "text": "Team C won game one against Team A.",
-    "t": 20.046,
-    "d": 2.272
+    "text": "Team B also won game one against Team C.",
+    "t": 24.142,
+    "d": 2.552
    },
    {
     "text": "That series is still going.",
-    "t": 22.459,
-    "d": 1.542
+    "t": 26.954,
+    "d": 1.541
    }
   ]
  },
  {
   "id": "res3",
-  "t": 24.551,
-  "d": 5.029,
+  "t": 29.095,
+  "d": 4.6,
   "phrases": [
    {
-    "text": "And Team B won game one against Team C.",
-    "t": 24.901,
-    "d": 2.43
+    "text": "And Team C won game one against Team A.",
+    "t": 29.395,
+    "d": 2.25
    },
    {
-    "text": "That one is still going too.",
-    "t": 27.471,
-    "d": 1.559
+    "text": "Still going too.",
+    "t": 31.905,
+    "d": 1.19
    }
   ]
  },
  {
   "id": "table",
-  "t": 29.58,
-  "d": 5.103,
+  "t": 33.695,
+  "d": 5.12,
   "phrases": [
    {
     "text": "So right now,",
-    "t": 29.93,
-    "d": 1.026
+    "t": 33.995,
+    "d": 1.012
    },
    {
-    "text": "Team B has three points.",
-    "t": 31.096,
-    "d": 1.562
+    "text": "B has three points.",
+    "t": 35.268,
+    "d": 1.369
    },
    {
     "text": "C and A have zero.",
-    "t": 32.798,
-    "d": 1.335
+    "t": 36.897,
+    "d": 1.319
    }
   ]
  },
  {
   "id": "aout",
-  "t": 34.682,
-  "d": 6.707,
+  "t": 38.816,
+  "d": 6.651,
   "phrases": [
    {
     "text": "Team A can only reach two points.",
-    "t": 35.032,
-    "d": 1.879
+    "t": 39.116,
+    "d": 1.883
    },
    {
-    "text": "That's not enough to catch B.",
-    "t": 37.051,
-    "d": 1.625
+    "text": "So A can't win the title.",
+    "t": 41.259,
+    "d": 1.533
    },
    {
-    "text": "Team A is out of the title race.",
-    "t": 38.815,
-    "d": 2.024
+    "text": "But A can still decide who does.",
+    "t": 43.053,
+    "d": 1.814
    }
   ]
  },
  {
   "id": "next",
-  "t": 41.389,
-  "d": 3.79,
+  "t": 45.466,
+  "d": 6.353,
   "phrases": [
    {
-    "text": "So it's B versus C.",
-    "t": 41.739,
-    "d": 1.46
+    "text": "Next up...",
+    "t": 45.766,
+    "d": 0.762
    },
    {
-    "text": "Next up, game two!",
-    "t": 43.34,
-    "d": 1.29
+    "text": "it's A versus C, game two.",
+    "t": 46.788,
+    "d": 1.7
+   },
+   {
+    "text": "And Team B?",
+    "t": 48.748,
+    "d": 0.937
+   },
+   {
+    "text": "B is just waiting.",
+    "t": 49.945,
+    "d": 1.274
    }
   ]
  },
  {
-  "id": "bwins",
-  "t": 45.179,
-  "d": 6.848,
+  "id": "cwin",
+  "t": 51.819,
+  "d": 6.663,
   "phrases": [
    {
-    "text": "If B wins game two,",
-    "t": 45.529,
-    "d": 1.399
+    "text": "If C wins,",
+    "t": 52.119,
+    "d": 1.019
    },
    {
-    "text": "B gets six points.",
-    "t": 47.068,
-    "d": 1.363
+    "text": "C sweeps A, and gets three points.",
+    "t": 53.398,
+    "d": 2.015
    },
    {
-    "text": "Nobody can catch that.",
-    "t": 48.571,
-    "d": 1.416
-   },
-   {
-    "text": "Team B is champion!",
-    "t": 50.127,
-    "d": 1.351
+    "text": "Then it all comes down to B versus C.",
+    "t": 55.674,
+    "d": 2.209
    }
   ]
  },
  {
-  "id": "cwins",
-  "t": 52.028,
-  "d": 4.392,
+  "id": "cwin2",
+  "t": 58.482,
+  "d": 6.655,
   "phrases": [
    {
-    "text": "But if C wins game two,",
-    "t": 52.378,
-    "d": 1.58
+    "text": "B needs just one win to be champion.",
+    "t": 58.782,
+    "d": 2.165
    },
    {
-    "text": "the series goes to game three.",
-    "t": 54.098,
-    "d": 1.772
+    "text": "C has to beat B twice...",
+    "t": 61.207,
+    "d": 1.558
+   },
+   {
+    "text": "and then C takes the crown.",
+    "t": 63.025,
+    "d": 1.512
    }
   ]
  },
  {
-  "id": "g3b",
-  "t": 56.42,
-  "d": 7.473,
+  "id": "awin",
+  "t": 65.137,
+  "d": 4.42,
   "phrases": [
    {
-    "text": "If B wins game three,",
-    "t": 56.77,
+    "text": "But if A wins game two...",
+    "t": 65.437,
     "d": 1.498
    },
    {
-    "text": "B finishes with five points.",
-    "t": 58.408,
-    "d": 1.75
+    "text": "the series goes to game three.",
+    "t": 67.195,
+    "d": 1.762
+   }
+  ]
+ },
+ {
+  "id": "a3",
+  "t": 69.557,
+  "d": 7.299,
+  "phrases": [
+   {
+    "text": "If A wins again,",
+    "t": 69.857,
+    "d": 1.119
    },
    {
-    "text": "C can only reach four.",
-    "t": 60.298,
-    "d": 1.547
+    "text": "C only gets one point.",
+    "t": 71.236,
+    "d": 1.647
    },
    {
-    "text": "B is still champion!",
-    "t": 61.985,
+    "text": "And Team B is champion...",
+    "t": 73.143,
+    "d": 1.495
+   },
+   {
+    "text": "without even playing!",
+    "t": 74.898,
     "d": 1.358
    }
   ]
  },
  {
-  "id": "g3c",
-  "t": 63.893,
-  "d": 7.723,
+  "id": "c3",
+  "t": 76.856,
+  "d": 5.9,
   "phrases": [
    {
-    "text": "But if C wins game three,",
-    "t": 64.243,
-    "d": 1.567
+    "text": "If C wins game three,",
+    "t": 77.156,
+    "d": 1.465
    },
    {
-    "text": "B is stuck on four points,",
-    "t": 65.95,
-    "d": 1.709
+    "text": "C has two points.",
+    "t": 78.881,
+    "d": 1.239
    },
    {
-    "text": "and C has two.",
-    "t": 67.799,
-    "d": 1.199
-   },
-   {
-    "text": "Now it all depends on C versus A.",
-    "t": 69.138,
-    "d": 1.929
+    "text": "Then B versus C decides it.",
+    "t": 80.38,
+    "d": 1.775
    }
   ]
  },
  {
-  "id": "o1",
-  "t": 71.616,
-  "d": 5.451,
+  "id": "c3b",
+  "t": 82.756,
+  "d": 7.802,
   "phrases": [
    {
-    "text": "If C beats A, two, nothing,",
-    "t": 71.966,
-    "d": 1.668
+    "text": "If B wins just one game,",
+    "t": 83.056,
+    "d": 1.678
    },
    {
-    "text": "C gets five points,",
-    "t": 73.775,
-    "d": 1.401
+    "text": "B is champion.",
+    "t": 84.994,
+    "d": 1.139
    },
    {
-    "text": "and takes the crown!",
-    "t": 75.316,
-    "d": 1.201
+    "text": "But if C beats B twice...",
+    "t": 86.393,
+    "d": 1.609
+   },
+   {
+    "text": "they're tied on four points.",
+    "t": 88.262,
+    "d": 1.696
    }
   ]
  },
  {
-  "id": "o2",
-  "t": 77.067,
-  "d": 5.635,
+  "id": "h2h",
+  "t": 90.558,
+  "d": 4.233,
   "phrases": [
    {
-    "text": "If A comes back and beats C,",
-    "t": 77.417,
-    "d": 1.679
+    "text": "Then it's a head to head match.",
+    "t": 90.858,
+    "d": 1.652
    },
    {
-    "text": "C stays on three.",
-    "t": 79.236,
-    "d": 1.425
-   },
-   {
-    "text": "Team B is champion!",
-    "t": 80.801,
-    "d": 1.351
-   }
-  ]
- },
- {
-  "id": "o3",
-  "t": 82.702,
-  "d": 8.29,
-  "phrases": [
-   {
-    "text": "And if C beats A, two, one,",
-    "t": 83.052,
-    "d": 1.664
-   },
-   {
-    "text": "B and C are tied on four points.",
-    "t": 84.856,
-    "d": 2.07
-   },
-   {
-    "text": "Then they play a head to head match,",
-    "t": 87.065,
-    "d": 1.739
-   },
-   {
-    "text": "and the winner takes the crown!",
-    "t": 88.944,
-    "d": 1.498
+    "text": "And the winner takes the crown.",
+    "t": 92.77,
+    "d": 1.421
    }
   ]
  },
  {
   "id": "sum",
-  "t": 90.992,
-  "d": 7.607,
+  "t": 94.79,
+  "d": 7.723,
   "phrases": [
    {
-    "text": "So,",
-    "t": 91.342,
-    "d": 0.554
+    "text": "So here's the thing.",
+    "t": 95.09,
+    "d": 1.135
    },
    {
-    "text": "Team B needs just one more win.",
-    "t": 92.036,
-    "d": 1.968
+    "text": "B needs one more win.",
+    "t": 96.486,
+    "d": 1.362
    },
    {
-    "text": "Team C must beat B twice, then beat A.",
-    "t": 94.144,
-    "d": 2.246
+    "text": "C needs to beat B twice.",
+    "t": 98.108,
+    "d": 1.716
    },
    {
-    "text": "Who do you think takes the crown?",
-    "t": 96.531,
-    "d": 1.518
+    "text": "And A decides how hard that is.",
+    "t": 100.084,
+    "d": 1.829
+   }
+  ]
+ },
+ {
+  "id": "end",
+  "t": 102.513,
+  "d": 3.218,
+  "phrases": [
+   {
+    "text": "So...",
+    "t": 102.813,
+    "d": 0.562
+   },
+   {
+    "text": "who do you think takes the crown?",
+    "t": 103.635,
+    "d": 1.496
    }
   ]
  }
